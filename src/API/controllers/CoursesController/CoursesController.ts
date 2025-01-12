@@ -4,6 +4,7 @@ import { Response } from 'express';
 interface SearchCoursesRequest {
     query: {
         keyword?: string;
+        limit?: number;
     };
 }
 
@@ -16,8 +17,7 @@ export const searchCourses = async (
     res: Response
 ): Promise<void> => {
     try {
-        const { keyword } = req.query;
-        const NumberOfCourses: number = 6;
+        const { keyword , limit = 5 } = req.query;
 
         if (!keyword) {
             throw new Error('Keyword is required');
@@ -26,10 +26,8 @@ export const searchCourses = async (
             throw new Error('Keyword must be a string');
         }
 
-        const courses = await searchCoursesService(keyword, NumberOfCourses);
-        res.status(200).json({
-            courses,
-        });
+        const courses = await searchCoursesService(keyword, limit);
+        res.status(200).send(courses);
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
         res.status(400).json({ error: errorMessage });

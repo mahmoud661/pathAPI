@@ -8,9 +8,6 @@ const { shuffle } = pkg;
 
 // Function to search top courses on both platforms
 async function searchCoursesService(query: string, limit = 10) {
-
-    
-
   const udemyLimit = limit; // Limit for Udemy courses
   const courseraLimit = limit; // Limit for Coursera courses
 
@@ -19,7 +16,7 @@ async function searchCoursesService(query: string, limit = 10) {
   const courseraCourses = await fetchCourseraCourses(query, courseraLimit);
 
   // Combine the results
-  const combinedCourses = [...udemyCourses.courses, ...courseraCourses.courses];
+  const combinedCourses = [...udemyCourses, ...courseraCourses];
 
   return {
     courses: shuffle(combinedCourses),
