@@ -6,7 +6,9 @@ if (process.env.NODE_ENV === 'production') {
   dotenv.config({ path: '.env.prod' });
 }
 
-export const config = {
+const config = {
   port: process.env.PORT || 3000,
   dbHost: process.env.DB_HOST,
 };
+
+export default config;
