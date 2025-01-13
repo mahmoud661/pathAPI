@@ -30,10 +30,11 @@ export const fetchCourseraCourses = async (
       { headers },
     );
     return response.data.elements.slice(0, limit).map((course) => ({
-      id: course.id,
       title: course.name,
       photoUrl: course.photoUrl,
       url: `https://www.coursera.org/learn/${course.slug}`,
+      platform: 'Coursera',
+      price: 'Subscription',
     }));
   } catch (error) {
     console.error('Error fetching Coursera courses:', error);
