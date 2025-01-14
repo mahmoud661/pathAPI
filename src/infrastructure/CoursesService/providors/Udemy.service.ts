@@ -34,7 +34,7 @@ export async function fetchUdemyCourses(
   try {
     const response = await axios.get<UdemyApiResponse>(url, {
       headers: {
-        Authorization: `Basic blpldm9vcFUwYnlTdHB6VXFnNGliU2g0TTE1UXBvbmNDOGFBUEtRQToxM29zQ0tmYVpSMWFneVFianl5SjdtSjNLeGxGaWhaYUZ3UTJ5WFJSYTJMUmgxb21kOGNWRExwS2VQQTBHbG1hOXUzUGJMQ040Y3Brc0lBT2dORlpCUUsxeHI2cUlnSkJoVFl0ZGVoQ1RFV2JBOTgwQmJQQU9jOUFiRDRJempEZw==`,
+        Authorization: `Basic ${base64Credentials}`,
       },
     });
 
