@@ -1,9 +1,10 @@
 import Logger from '../logger/consoleLogger';
 import Job from './types';
+import { IJobsService } from './IJobsService';
 // eslint-disable-next-line @typescript-eslint/no-require-imports, no-undef
 const linkedIn = require('linkedin-jobs-api');
 
-class JobsService {
+class JobsService implements IJobsService {
   private static _instance: JobsService = new JobsService();
   private constructor() {}
   public static get instance() {

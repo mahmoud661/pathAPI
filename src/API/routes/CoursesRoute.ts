@@ -1,8 +1,10 @@
 import express from 'express';
-import { searchCourses } from '../controllers/CoursesController/CoursesController';
+import { CoursesController } from '../controllers/CoursesController/CoursesController';
+import CoursesService from '../../infrastructure/CoursesService/CoursesService.service';
 
 const router = express.Router();
+const coursesController = new CoursesController(CoursesService.instance);
 
-router.get('/', searchCourses);
+router.get('/', coursesController.searchCourses);
 
 export default router;

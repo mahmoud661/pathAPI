@@ -3,16 +3,17 @@ import pkg from 'lodash';
 dotenv.config();
 import { fetchCourseraCourses } from './providors/coursera.service';
 import { fetchUdemyCourses } from './providors/Udemy.service';
+import { ICoursesService, CourseSearchResult } from './ICoursesService';
 
 const { shuffle } = pkg;
 
 
-class CourseService {
-  private static _instance: CourseService = new CourseService();
+class CoursesService implements ICoursesService {
+  private static _instance: CoursesService = new CoursesService();
   private constructor() {}
 
-  public static get instance() {
-    return CourseService._instance;
+  public static get instance(): CoursesService {
+    return CoursesService._instance;
   }
 
   /**
@@ -22,7 +23,7 @@ class CourseService {
    * @returns {Promise<{courses: any[]; totalCourses: number}>}
    */
 
-  async searchCourses(query: string, limit = 10) {
+  async searchCourses(query: string, limit = 10): Promise<CourseSearchResult> {
     const udemyLimit = limit; // Limit for Udemy courses
     const courseraLimit = limit; // Limit for Coursera courses
 
@@ -43,4 +44,4 @@ class CourseService {
 
 }
 
-export default CourseService;
+export default CoursesService;

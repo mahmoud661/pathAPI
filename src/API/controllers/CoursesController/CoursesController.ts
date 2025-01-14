@@ -1,40 +1,37 @@
-import CoursesService from "../../../infrastructure/CoursesService/CoursesService.service";
-import { Response } from 'express';
+import { Request, Response } from 'express';
+import { ICoursesService } from '../../../infrastructure/CoursesService/ICoursesService';
+import Logger from '../../../infrastructure/logger/consoleLogger';
 
-interface SearchCoursesRequest {
-    query: {
-        keyword?: string;
-        limit?: number;
-    };
-}
+export class CoursesController {
+  constructor(private readonly coursesService: ICoursesService) {}
 
-interface SearchCoursesResponse {
-    courses: any[]; // Type depends on what searchCoursesService returns
-}
-
-export const searchCourses = async (
-    req: SearchCoursesRequest,
-    res: Response
-): Promise<void> => {
-
+  public searchCourses = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { keyword , limit = 5 } = req.query;
+      const { keyword, limit = 5 } = req.query;
 
-        if (!keyword) {
-            throw new Error('Keyword is required');
-        }
-        if (typeof keyword !== 'string') {
-            throw new Error('Keyword must be a string');
-        }
-        const coursesService = CoursesService.instance;
-        const { courses, totalCourses } = await coursesService.searchCourses(keyword, limit);
-        
-        res.status(200).json({ 
-            courses,
-            totalCourses
+      if (!keyword || typeof keyword !== 'string') {
+        res.status(400).json({
+          success: false,
+          message: 'Valid keyword is required',
         });
+        return;
+      }
+
+      const result = await this.coursesService.searchCourses(
+        keyword,
+        Number(limit)
+      );
+
+      res.status(200).json({
+        success: true,
+        data: result,
+      });
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-        res.status(400).json({ error: errorMessage });
+      Logger.Error(error, 'CoursesController.searchCourses');
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+      });
     }
-};
+  };
+}
