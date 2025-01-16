@@ -1,4 +1,4 @@
-import { config } from '../src/config';
+import { env } from '../src/config';
 import { execSync } from 'child_process';
 
 jest.mock('../src/config', () => ({
