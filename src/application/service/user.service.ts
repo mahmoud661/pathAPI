@@ -29,12 +29,14 @@ export class UserService {
     if (!isPasswordMatch) {
       throw new CustomError('Invalid credentials', 401);
     }
-    if (!user.is_email_confirmed) {
-      const timeStamp =
-        new Date().getTime() - new Date(user.created_at).getTime();
-      if (timeStamp > 1000 * 60 * 10)
-        throw new CustomError('User not confirmed', 451);
-    }
+ if (!user.is_email_confirmed) {
+  const TEN_MINUTES_IN_MS = 1000 * 60 * 60 * 3.1;
+  const timeSinceCreation = new Date().getTime() - new Date(user.created_at).getTime();
+
+  if (timeSinceCreation > TEN_MINUTES_IN_MS) {
+    throw new CustomError('User not confirmed', 451);
+  }
+}
     return toGet(user);
   }
   async confirmEmail(id: number, email: string, isEditor: boolean) {
