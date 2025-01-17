@@ -15,7 +15,7 @@ export class UserRepo implements IUserRepo {
    * @returns {UserRepo} The instance of the UserRepo class.
    */
   public static get instance() {
-    if (!UserRepo._instance) new UserRepo();
+    if (!UserRepo._instance) UserRepo._instance = new UserRepo();
     return UserRepo._instance;
   }
 
@@ -25,13 +25,14 @@ export class UserRepo implements IUserRepo {
    * @returns {Promise<IUser>} The newly created user.
    */
   async create(user: PostUserDTO): Promise<IUser> {
-    const query = `INSERT INTO user (first_name, last_name, email, password)
+    const query = `INSERT INTO "user" (first_name, last_name, email, password)
     VALUES ($1, $2, $3, $4) RETURNING *`;
     const values = [user.first_name, user.last_name, user.email, user.password];
 
     try {
       return (await pool.query(query, values)).rows[0];
     } catch (error: Error | any) {
+      console.log(error);
       throw new CustomError(error.message, 500, 'userRepo.create()');
     }
   }
@@ -59,7 +60,7 @@ export class UserRepo implements IUserRepo {
     values.push(String(id));
 
     const query = `
-      UPDATE user
+      UPDATE 'user'
       SET ${setClause}
       WHERE id = $${values.length}
       RETURNING *;
@@ -96,7 +97,8 @@ export class UserRepo implements IUserRepo {
    * @throws {Error} If the user cannot be found or an error occurs during retrieval.
    */
   async getByEmail(email: string): Promise<IUser> {
-    const query = `SELECT * FROM user WHERE email = $1`;
+    const query = `SELECT * FROM "user" WHERE email=$1`;
+    console.log('query', query);
     try {
       return (await pool.query(query, [email])).rows?.[0] as IUser;
     } catch (error: Error | any) {

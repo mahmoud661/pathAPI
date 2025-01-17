@@ -13,7 +13,10 @@ import {
 import { isEditor } from '../../application/utils/roleDetermine';
 
 class AuthController {
-  constructor(private userService: UserService) {}
+  static userService: UserService;
+  constructor(private _userService: UserService) {
+    AuthController.userService = _userService;
+  }
 
   async register(
     req: Request,
@@ -23,7 +26,7 @@ class AuthController {
     const postUser: PostUserDTO = req.body;
     let user: GetUserDTO;
     try {
-      user = await this.userService.register(postUser);
+      user = await AuthController.userService.register(postUser);
     } catch (error: Error | any) {
       if (error instanceof CustomError) {
         next(error);
@@ -55,7 +58,7 @@ class AuthController {
     const { email, password } = req.body;
     let user;
     try {
-      user = await this.userService.login(email, password);
+      user = await AuthController.userService.login(email, password);
     } catch (error: Error | any) {
       if (error instanceof CustomError) {
         next(error);
@@ -76,7 +79,7 @@ class AuthController {
     const { email } = req.body;
     let user;
     try {
-      user = await this.userService.getByEmail(email);
+      user = await AuthController.userService.getByEmail(email);
     } catch (error: Error | any) {
       if (error instanceof CustomError) {
         next(error);
@@ -103,9 +106,9 @@ class AuthController {
     const { password, oldPassword, user, tokenType } = req.body;
     let updatedUser;
     if (tokenType === Token.RECOVERY_TOKEN && password)
-      updatedUser = await this.userService.updatePassword(user.id, password);
+      updatedUser = await AuthController.userService.updatePassword(user.id, password);
     else if (password && oldPassword && password === oldPassword)
-      updatedUser = await this.userService.updatePassword(user.id, password);
+      updatedUser = await AuthController.userService.updatePassword(user.id, password);
 
     if (!updatedUser) throw new CustomError('Password not match', 400);
 
@@ -126,7 +129,7 @@ class AuthController {
     if (tokenType !== Token.CONFIRM_TOKEN) {
       throw new CustomError('Invalid token', 401);
     }
-    const updatedUser = await this.userService.confirmEmail(
+    const updatedUser = await AuthController.userService.confirmEmail(
       user.id,
       user.email,
       isEditor,

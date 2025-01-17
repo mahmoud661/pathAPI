@@ -16,7 +16,7 @@ const controller = new AuthController(userService);
 
 router.post(
   '/register',
-  notEmpty('firstName', 'lastName', 'email', 'password'),
+  notEmpty('first_name', 'last_name', 'email', 'password'),
   controller.register,
 );
 
