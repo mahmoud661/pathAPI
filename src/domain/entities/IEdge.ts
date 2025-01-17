@@ -7,6 +7,5 @@ export interface IEdge {
   target_handle: string;
   type: string;
   style: Record<string, any>;
-  created_at: Date;
   updated_at: Date;
 }

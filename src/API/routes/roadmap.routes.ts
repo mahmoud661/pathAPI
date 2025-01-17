@@ -14,7 +14,7 @@ const roadmapController = new RoadmapController(roadmapService);
 router.post(
   '/',
   authenticate,
-  notEmpty('title', 'description'),
+  notEmpty('title', 'description' , 'slug'),
   roadmapController.create.bind(roadmapController),
 );
 

@@ -14,7 +14,7 @@ const profileController = new ProfileController(profileService);
 router.get(
   '/',
   authenticate,
-  profileController.getProfile.bind(profileController)
+  profileController.getProfile
 );
 
 // Update user profile

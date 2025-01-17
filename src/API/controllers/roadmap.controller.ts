@@ -7,12 +7,13 @@ export class RoadmapController {
   constructor(private readonly roadmapService: RoadmapService) {}
 
   async create(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    const {user, isEditor, body} = req;
+    if (!req.user.is_editor) {
+      throw new CustomError('Not authorized', 403);
+    }
     try {
-      if (!req.user.is_editor) {
-        throw new CustomError('Not authorized', 403);
-      }
       const roadmap = await this.roadmapService.create(req.body);
-      res.status(201).json({ success: true, data: roadmap });
+      res.status(201).json({ success: true, roadmap });
     } catch (error) {
       next(error);
     }
