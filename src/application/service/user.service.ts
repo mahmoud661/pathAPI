@@ -23,17 +23,17 @@ export class UserService {
   async login(email: string, password: string) {
     const user = await this._repo.getByEmail(email);
     if (!user) {
-      throw new CustomError('User not found', 400);
+      throw new CustomError('Invalid credentials', 401);
+    }
+    const isPasswordMatch = await compare(password, user.password);
+    if (!isPasswordMatch) {
+      throw new CustomError('Invalid credentials', 401);
     }
     if (!user.is_email_confirmed) {
       const timeStamp =
         new Date().getTime() - new Date(user.created_at).getTime();
-      if (timeStamp > 1000 * 60 * 60 * 24 * 5)
+      if (timeStamp > 1000 * 60 * 10)
         throw new CustomError('User not confirmed', 451);
-    }
-    const isPasswordMatch = await compare(password, user.password);
-    if (isPasswordMatch) {
-      throw new CustomError('Invalid credentials', 401);
     }
     return toGet(user);
   }
