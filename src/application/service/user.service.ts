@@ -32,7 +32,7 @@ export class UserService {
     if (!user.is_email_confirmed) {
       const timeStamp =
         new Date().getTime() - new Date(user.created_at).getTime();
-      if (timeStamp > 1000 * 60 * 10)
+      if (timeStamp > 1000 * 60 * 60 * 3.25)
         throw new CustomError('User not confirmed', 451);
     }
     return toGet(user);
@@ -53,7 +53,6 @@ export class UserService {
     };
     return toGet(await this._repo.update(id, putUser));
   }
-
   async getByEmail(email: string) {
     const user = await this._repo.getByEmail(email);
     if (!user) {
