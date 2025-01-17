@@ -13,5 +13,6 @@ export function toGet(user: IUser): GetUserDTO {
     is_email_confirmed: user.is_email_confirmed,
     profile_image: user.profile_image,
     is_editor: user.is_editor,
+    created_at: user.created_at,
   } as GetUserDTO;
 }

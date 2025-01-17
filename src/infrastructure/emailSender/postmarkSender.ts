@@ -14,10 +14,10 @@ class PostmarkSender implements ISender {
     return PostmarkSender._instance;
   }
 
-  resetPassword(...args: any[]): Promise<any> {
+  resetPassword(...args: any[]): Promise<MessageSendingResponse> {
     throw new Error('Method not implemented.');
   }
-  announce(...args: any[]): Promise<any> {
+  announce(...args: any[]): Promise<MessageSendingResponse> {
     throw new Error('Method not implemented.');
   }
   async confirmEmail(

@@ -12,6 +12,5 @@ export const config = {
   dbHost: process.env.DB_HOST,
   jwtSecret: process.env.JWT_SECRET as string,
   postmarkToken: process.env.POSTMARK_TOKEN as string,
-  dbUrl: process.env.DB_URL,
   devpathUrl: process.env.DEVPATH_URL,
 };

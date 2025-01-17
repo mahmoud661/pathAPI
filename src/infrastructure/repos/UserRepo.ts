@@ -1,7 +1,8 @@
+import { CustomError } from '../../application/exception/customError';
 import { PostUserDTO } from '../../domain/DTOs/user/PostUserDTO';
+import { PutUserDTO } from '../../domain/DTOs/user/PutUserDTO';
 import { IUser } from '../../domain/entities/IUser';
 import { IUserRepo } from '../../domain/IRepo/IUserRepo';
-import Logger from '../logger/consoleLogger';
 import pool from './DBpool';
 
 export class UserRepo implements IUserRepo {
@@ -23,25 +24,53 @@ export class UserRepo implements IUserRepo {
    * @param {IUser} user The user to be created.
    * @returns {Promise<IUser>} The newly created user.
    */
-  async create(user: PostUserDTO, isEditor: boolean = false): Promise<IUser> {
-    const query = `INSERT INTO user (first_name, last_name, email, password, is_editor)
-    VALUES ($1, $2, $3, $4, $5) RETURNING *`;
+  async create(user: PostUserDTO): Promise<IUser> {
+    const query = `INSERT INTO user (first_name, last_name, email, password)
+    VALUES ($1, $2, $3, $4) RETURNING *`;
     const values = [user.first_name, user.last_name, user.email, user.password];
 
     try {
       return (await pool.query(query, values)).rows[0];
     } catch (error: Error | any) {
-      Logger.Error(error, 'UserRepo.create()');
-      throw error;
+      throw new CustomError(error.message, 500, 'userRepo.create()');
     }
   }
-  /**
-   * Updates an existing user and returns the updated user.
-   * @param {PutUserDTO} user The user to be updated.
-   * @returns {Promise<IUser>} The updated user.
-   */
-  async update(user: IUser): Promise<IUser> {
-    throw new Error('Method not implemented.');
+  async update(id: number, updateData: PutUserDTO): Promise<IUser> {
+    const fields = Object.keys(updateData).filter(
+      (key) =>
+        updateData[key as keyof PutUserDTO] !== undefined &&
+        updateData[key as keyof PutUserDTO] !== null,
+    );
+
+    if (fields.length === 0) {
+      throw new CustomError(
+        'Internal Server Error',
+        500,
+        'userRepo.updateUser() -> fields.length',
+      );
+    }
+    fields.push('updated_at');
+
+    const setClause = fields
+      .map((field, index) => `${field} = $${index + 1}`)
+      .join(', ');
+    const values = fields.map((field) => updateData[field as keyof PutUserDTO]);
+    values.push(new Date().toISOString());
+    values.push(String(id));
+
+    const query = `
+      UPDATE user
+      SET ${setClause}
+      WHERE id = $${values.length}
+      RETURNING *;
+    `;
+
+    try {
+      const result = await pool.query(query, values);
+      return result.rows[0];
+    } catch (error: Error | any) {
+      throw new CustomError(error.message, 500, 'userRepo.updateUser()');
+    }
   }
   /**
    * Deletes a user by ID.
@@ -57,8 +86,7 @@ export class UserRepo implements IUserRepo {
    * @returns {Promise<IUser>} A promise that resolves to the user with the specified ID.
    * @throws {Error} If the user cannot be found or an error occurs during retrieval.
    */
-
-  getById(id: number): Promise<IUser> {
+  async getById(id: number): Promise<IUser> {
     throw new Error('Method not implemented.');
   }
   /**
@@ -71,9 +99,8 @@ export class UserRepo implements IUserRepo {
     const query = `SELECT * FROM user WHERE email = $1`;
     try {
       return (await pool.query(query, [email])).rows?.[0] as IUser;
-    } catch (error) {
-      Logger.Error(error, 'UserRepo.getByEmail()');
-      throw error;
+    } catch (error: Error | any) {
+      throw new CustomError(error.message, 500, 'userRepo.getByEmail()');
     }
   }
 }

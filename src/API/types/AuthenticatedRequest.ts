@@ -1,12 +1,9 @@
-import Role from '../../application/types/role';
+import { Request } from 'express';
 import Token from '../../application/types/token';
 
 interface AuthenticatedRequest extends Request {
-  user: {
-    id: number;
-    email: string;
-  };
-  tokenType: Token | number;
+  user?: any;
+  tokenType?: Token;
   isEditor?: boolean;
 }
 

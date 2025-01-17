@@ -1,56 +1,38 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import { Response, NextFunction } from 'express';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import { config } from '../../config';
-import Token from '../../application/types/token';
+import AuthenticatedRequest from '../types/AuthenticatedRequest';
 
-export interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    email: string;
-  };
-  tokenType?: string; // The type of the token (confirm, access, etc.)
-  isEditor?: boolean; // The user's editor flag
-}
+const authenticate = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction,
+): void => {
+  const token = req.header('Authorization')?.split(' ')[1];
 
-export const authMiddleware = (...allowedTokenTypes: Token[]) => {
-  return (
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction,
-  ): void => {
-    const authHeader = req.headers.authorization;
+  if (!token) {
+    res.status(401).json({ message: 'Not authorized, token not found' });
+    return;
+  }
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res
-        .status(401)
-        .json({ message: 'Authorization token missing or invalid' });
+  try {
+    const jwtSecret = config.jwtSecret;
+    const decoded = jwt.verify(token, jwtSecret) as JwtPayload;
+
+    if (!decoded || !decoded.user) {
+      res.status(401).json({ message: 'Not authorized, userId not found' });
+      return;
     }
 
-    const token = authHeader.split(' ')[1];
+    req.user = decoded.user;
+    req.tokenType = decoded.tokenType;
+    req.isEditor = decoded.isEditor;
 
-    try {
-      const decoded = jwt.verify(token, config.jwtSecret) as {
-        user: {
-          id: string;
-          email: string;
-          tokenType: string;
-          isEditor?: boolean;
-        };
-      };
-
-      // Ensure the token type matches one of the allowed token types
-      if (!allowedTokenTypes.includes(decoded.user.tokenType as Token)) {
-        return res.status(403).json({ message: 'Invalid token type' });
-      }
-
-      // Attach user details and token-related properties to the request
-      req.user = decoded.user; // The user object (id, email)
-      req.tokenType = decoded.user.tokenType; // Token type (confirm, access, etc.)
-      req.isEditor = decoded.user.isEditor; // The editor flag (optional)
-
-      next(); // Proceed to the next middleware or route handler
-    } catch (error) {
-      return res.status(403).json({ message: 'Invalid or expired token' });
-    }
-  };
+    next();
+  } catch (err) {
+    res.status(401).json({ message: 'Not authorized, invalid token' });
+    return;
+  }
 };
+
+export { authenticate };

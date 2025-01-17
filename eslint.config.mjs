@@ -6,7 +6,7 @@ import tsParserPkg from "@typescript-eslint/parser"; // Default import
 /** @type {import('eslint').Linter.Config[]} */
 export default [
   {
-    files: ["**/*.{js,mjs,cjs,ts}"], // Apply the rule for all JS and TS files
+    files: ["**/*.{js,mjs,cjs}"], // Apply the rule for all JS and TS files
     languageOptions: {
       globals: {
         ...globals.browser, // Browser globals

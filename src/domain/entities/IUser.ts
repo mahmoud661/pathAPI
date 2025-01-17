@@ -10,4 +10,5 @@ export interface IUser {
   is_email_confirmed: boolean;
   profile_image?: Buffer | null;
   is_editor:boolean;
+  created_at: Date;
 }

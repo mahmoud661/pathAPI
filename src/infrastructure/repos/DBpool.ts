@@ -4,7 +4,7 @@ import { config } from '../../config';
 console.log(config.dbHost);
 
 const pool = new Pool({
-  connectionString: config.dbUrl,
+  connectionString: config.dbHost,
   ssl: {
     rejectUnauthorized: false,
   },

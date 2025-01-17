@@ -3,9 +3,8 @@ import notEmpty from '../middlewares/notEmpty';
 import AuthController from '../controllers/auth';
 import { UserRepo } from '../../infrastructure/repos/UserRepo';
 import { UserService } from '../../application/service/user.service';
+import { authenticate } from '../middlewares/authentication';
 import AuthenticatedRequest from '../types/AuthenticatedRequest';
-import { authMiddleware } from '../middlewares/authentication';
-import Token from '../../application/types/token';
 
 const router = Router();
 
@@ -18,30 +17,24 @@ const controller = new AuthController(userService);
 router.post(
   '/register',
   notEmpty('firstName', 'lastName', 'email', 'password'),
-  (req, res) => controller.register(req, res),
+  controller.register,
 );
 
-router.post('/login', notEmpty('email', 'password'), (req, res) => {
-  res.send('login');
-});
-
-router.post('/request-password-recovery', notEmpty('email'), (req, res) => {
-  res.send('request-password-recovery');
-});
-
-router.post('/change-password', notEmpty('newPassword'), (req, res) => {
-  res.send('change-password');
-});
+router.post('/login', notEmpty('email', 'password'), controller.login);
 
 router.post(
-  '/confirm-email',
-  authMiddleware(Token.CONFIRM_TOKEN), // Only allow confirm tokens
-  (req, res) => {
-    const user = req.user;
-    const tokenType = req.tokenType;
-    const isEditor = req.isEditor;
-    res.json({ message: 'Email confirmed!', user, tokenType, isEditor });
-  },
+  '/request-password-recovery',
+  notEmpty('email'),
+  controller.requestPasswordRecovery,
 );
+
+router.post(
+  '/change-password',
+  notEmpty('newPassword'),
+  authenticate,
+  controller.changePassword,
+);
+
+router.post('/confirm-email', authenticate, controller.confirmEmail);
 
 export default router;
