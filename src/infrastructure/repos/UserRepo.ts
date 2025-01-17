@@ -32,7 +32,6 @@ export class UserRepo implements IUserRepo {
     try {
       return (await pool.query(query, values)).rows[0];
     } catch (error: Error | any) {
-      console.log(error);
       throw new CustomError(error.message, 500, 'userRepo.create()');
     }
   }
@@ -98,7 +97,6 @@ export class UserRepo implements IUserRepo {
    */
   async getByEmail(email: string): Promise<IUser> {
     const query = `SELECT * FROM "user" WHERE email=$1`;
-    console.log('query', query);
     try {
       return (await pool.query(query, [email])).rows?.[0] as IUser;
     } catch (error: Error | any) {
