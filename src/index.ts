@@ -11,7 +11,6 @@ const port = 4000;
 
 app.use(cors()); // Add CORS middleware
 app.use(express.json());
-app.use(errorMiddleware);
 
 app.use('/auth', authRoute);
 app.use('/courses', coursesRoute);
@@ -20,6 +19,9 @@ app.use('/jobs', jobsRoute);
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
+
+app.use(errorMiddleware);
+
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
