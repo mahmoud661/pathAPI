@@ -51,8 +51,12 @@ class AuthController {
     // );
 
     res
-      .status(201) // TODO: Remove confirmToken from res
-      .send({ success: true, token: accessToken, confirmToken: confirmToken });
+      .status(201) // TODO: Remove emailCTA from res
+      .send({
+        success: true,
+        token: accessToken,
+        emailCTA: `localhost:5178/confirm-email?token=${confirmToken}`,
+      });
   }
   async login(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { email, password } = req.body;
@@ -97,7 +101,12 @@ class AuthController {
     //   config.devpathUrl + '/password-recovery?token=' + token,
     // );
     // TODO: remove token from the response.
-    res.status(200).send({ success: true, recoveryToken: token });
+    res
+      .status(200)
+      .send({
+        success: true,
+        emailCTA: `localhost:5178/password-recovery?token=${token}`,
+      });
   }
   async changePassword(
     req: AuthenticatedRequest,
