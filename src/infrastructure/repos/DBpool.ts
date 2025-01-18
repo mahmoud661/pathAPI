@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import { config } from '../../config';
+import Logger from '../logger/consoleLogger';
 
 const pool = new Pool({
   connectionString: config.dbHost,
@@ -10,11 +11,11 @@ const pool = new Pool({
 
 
 pool.on('connect', () => {
-  console.log('Database connection established successfully');
+  Logger.Info('Database connection established successfully')
 });
 
 pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err);
+  Logger.Error('Unexpected error on idle client', 'DBpool');
 });
 
 export default pool;
