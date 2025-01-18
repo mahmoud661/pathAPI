@@ -14,7 +14,6 @@ import { isEditor } from '../../application/utils/roleDetermine';
 import Logger from '../../infrastructure/logger/consoleLogger';
 import { config } from '../../config';
 import { ServerError } from '../../application/exception/serverError';
-import { getTokenType } from '../middlewares/authentication';
 
 class AuthController {
   static userService: UserService;
