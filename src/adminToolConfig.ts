@@ -14,6 +14,6 @@ export interface ToolConfig {
 
 export const toolConfig: ToolConfig = {
   key: ['ahu.edu.jo'],
-  match: MatchingStrategy.SUB_DOMAIN,
+  match: MatchingStrategy.DOMAIN_INCLUDE,
   regex: undefined,
 };
