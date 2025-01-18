@@ -11,6 +11,8 @@ import {
   generateRecovery,
 } from '../utils/tokens';
 import { isEditor } from '../../application/utils/roleDetermine';
+import Logger from '../../infrastructure/logger/consoleLogger';
+import { config } from '../../config';
 
 class AuthController {
   static userService: UserService;
@@ -41,22 +43,20 @@ class AuthController {
       user.email,
       isEditor(user.email),
     );
-    const accessToken = generateAccess(user.id, user.email, false);
-
+    const token = generateAccess(user.id, user.email, false);
+    const emailCTA = `${config.devPathUrl}/confirm-email?token=${confirmToken}`;
     // TODO: Comment Out when sender is working
     // PostmarkSender.instance.confirmEmail(
     //   user.first_name,
     //   user.email,
-    //   config.devpathUrl + '/confirm-email?token=' + confirmToken,
+    //   emailCTA,
     // );
 
-    res
-      .status(201) // TODO: Remove emailCTA from res
-      .send({
-        success: true,
-        token: accessToken,
-        emailCTA: `localhost:5178/confirm-email?token=${confirmToken}`,
-      });
+    res.status(201).send({
+      success: true,
+      token,
+      emailCTA, // TODO: remove this when sender is working
+    });
   }
   async login(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { email, password } = req.body;
@@ -93,20 +93,18 @@ class AuthController {
       return;
     }
     const token = generateRecovery(user.id, user.email, user.is_editor);
-
+    const emailCTA = `${config.devPathUrl}/password-recovery?token=${token}`;
     // TODO: sender.resetPassword not implemented, comment out ASAP
     // const sendingResult = PostmarkSender.instance.resetPassword(
     //   user.first_name,
     //   user.email,
-    //   config.devpathUrl + '/password-recovery?token=' + token,
+    //   emailCTA,
     // );
     // TODO: remove token from the response.
-    res
-      .status(200)
-      .send({
-        success: true,
-        emailCTA: `localhost:5178/password-recovery?token=${token}`,
-      });
+    res.status(200).send({
+      success: true,
+      emailCTA, // TODO: Remove this when sender is working
+    });
   }
   async changePassword(
     req: AuthenticatedRequest,
@@ -129,12 +127,12 @@ class AuthController {
     if (!updatedUser) throw new CustomError('Password not match', 400);
 
     // TODO: why to not send alert for the user?
-    const accessToken = generateAccess(
+    const token = generateAccess(
       updatedUser.id,
       updatedUser.email,
       updatedUser.is_editor,
     );
-    res.status(200).send({ success: true, token: accessToken });
+    res.status(200).send({ success: true, token });
   }
   async confirmEmail(
     req: AuthenticatedRequest,
@@ -149,12 +147,12 @@ class AuthController {
       user.id,
       isEditor!,
     );
-    const accessToken = generateAccess(
+    const token = generateAccess(
       updatedUser.id,
       updatedUser.email,
       updatedUser.is_editor,
     );
-    res.status(200).send({ success: true, token: accessToken });
+    res.status(200).send({ success: true, token });
   }
 }
 
