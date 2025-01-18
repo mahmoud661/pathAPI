@@ -39,27 +39,46 @@ export class UserService {
 }
     return toGet(user);
   }
-  async confirmEmail(id: number, email: string, isEditor: boolean) {
+  async confirmEmail(id: number, isEditor: boolean) {
     const putUser: PutUserDTO = {
       is_email_confirmed: true,
       is_editor: isEditor,
     };
     return toGet(await this._repo.update(id, putUser));
   }
-  async updatePassword(id: number, password: string) {
-    if (this.passwordValidator(password)) {
+  async updatePassword(id: number, password: string, oldPassword?: string) {
+    if (!this.passwordValidator(password)) {
       throw new CustomError('Password is not strong enough', 400);
+    }
+    if(oldPassword) {
+      const user = await this._repo.getById(id);
+      const isPasswordMatch = await compare(oldPassword, user.password);
+      if (!isPasswordMatch) {
+        throw new CustomError('Invalid credentials', 401);
+      }
     }
     const putUser: PutUserDTO = {
       password: await hash(password, 10),
     };
     return toGet(await this._repo.update(id, putUser));
   }
-
   async getByEmail(email: string) {
     const user = await this._repo.getByEmail(email);
     if (!user) {
       throw new CustomError('User not found', 400);
+    }
+    return toGet(user);
+  }
+  async requestRecovery(email: string) {
+    const user = await this._repo.getByEmail(email);
+    if (!user) {
+      throw new CustomError('User not found', 400);
+    }
+    if (!user.is_email_confirmed) {
+      throw new CustomError(
+        "You'r email is not confirmed, you cannot request password recovery.",
+        400,
+      );
     }
     return toGet(user);
   }

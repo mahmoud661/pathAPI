@@ -1,8 +1,10 @@
 import { CustomError } from '../../application/exception/customError';
+import { ServerError } from '../../application/exception/serverError';
 import { PostUserDTO } from '../../domain/DTOs/user/PostUserDTO';
 import { PutUserDTO } from '../../domain/DTOs/user/PutUserDTO';
 import { IUser } from '../../domain/entities/IUser';
 import { IUserRepo } from '../../domain/IRepo/IUserRepo';
+import Logger from '../logger/consoleLogger';
 import pool from './DBpool';
 
 export class UserRepo implements IUserRepo {
@@ -22,7 +24,7 @@ export class UserRepo implements IUserRepo {
     try {
       return (await pool.query(query, values)).rows[0];
     } catch (error: Error | any) {
-      throw new CustomError(error.message, 500, 'userRepo.create()');
+      throw new ServerError(error.message, 500, 'userRepo.create()');
     }
   }
 
@@ -34,7 +36,11 @@ export class UserRepo implements IUserRepo {
     );
 
     if (fields.length === 0) {
-      throw new CustomError('No fields to update', 400, 'userRepo.update()');
+      throw new ServerError(
+        'No fields to update',
+        500,
+        'userRepo.updateUser() -> fields.length',
+      );
     }
 
     // Create values array with proper types
@@ -45,15 +51,16 @@ export class UserRepo implements IUserRepo {
     const setClause = fields
       .map((field, index) => `${field} = $${index + 1}`)
       .join(', ');
-
-    // Convert id to string for the query
-    queryValues.push(id.toString());
+    const values = fields.map((field) => updateData[field as keyof PutUserDTO]);
+    values.pop(); //## remove the undefined values comes with 'updated_at' key
+    values.push(new Date().toISOString());
+    values.push(String(id));
 
     const query = `
       UPDATE "user"
-      SET ${setClause}, updated_at = NOW()
-      WHERE id = $${queryValues.length}
-      RETURNING *
+      SET ${setClause}
+      WHERE id = $${values.length}
+      RETURNING *;
     `;
 
     try {
@@ -63,7 +70,7 @@ export class UserRepo implements IUserRepo {
       }
       return result.rows[0];
     } catch (error: Error | any) {
-      throw new CustomError(error.message, 500, 'userRepo.update()');
+      throw new ServerError(error.message, 500, 'userRepo.updateUser()');
     }
   }
 
@@ -77,25 +84,27 @@ export class UserRepo implements IUserRepo {
   }
 
   async getById(id: number): Promise<IUser> {
-    const query = 'SELECT * FROM "user" WHERE id = $1';
+    const query = 'SELECT * FROM "user" WHERE id=$1';
+    const value = [id];
     try {
-      const result = await pool.query(query, [id.toString()]);
-      if (!result.rows[0]) {
-        throw new CustomError('User not found', 404);
-      }
-      return result.rows[0];
+      return (await pool.query(query, value)).rows?.[0] as IUser;
     } catch (error: Error | any) {
-      throw new CustomError(error.message, 500, 'userRepo.getById()');
+      throw new ServerError(error.message, 500, 'userRepo.getById()');
     }
   }
-
+  /**
+   * Retrieves a user by their email address.
+   * @param {string} email The email address to search for.
+   * @returns {Promise<IUser>} A promise that resolves to the user with the specified email address.
+   * @throws {Error} If the user cannot be found or an error occurs during retrieval.
+   */
   async getByEmail(email: string): Promise<IUser> {
     const query = 'SELECT * FROM "user" WHERE email = $1';
     try {
       const result = await pool.query(query, [email]);
       return result.rows[0];
     } catch (error: Error | any) {
-      throw new CustomError(error.message, 500, 'userRepo.getByEmail()');
+      throw new ServerError(error.message, 500, 'userRepo.getByEmail()');
     }
   }
 }

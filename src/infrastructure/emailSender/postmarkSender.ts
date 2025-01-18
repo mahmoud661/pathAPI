@@ -31,7 +31,7 @@ class PostmarkSender implements ISender {
         To: email,
         TemplateAlias: 'devpath-confirm',
         TemplateModel: {
-          product_url: config.devpathUrl,
+          product_url: config.devPathUrl,
           product_name: 'Dev Path',
           name: name,
           action_url: actionUrl,

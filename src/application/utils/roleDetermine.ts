@@ -10,9 +10,10 @@ export function isEditor(email: string): boolean {
     case MatchingStrategy.DOMAIN:
       return toolConfig.key!.some((key) => email.endsWith(key));
     case MatchingStrategy.SUB_DOMAIN:
-      return toolConfig.key!.some(
-        (key) => email.split('@')[1].split('.')[0] === key,
+      const res = toolConfig.key!.some((key) =>
+        email.split('@')[1].split('.').includes(key),
       );
+      return res;
     case MatchingStrategy.DOMAIN_INCLUDE:
       return toolConfig.key!.some((key) => email.includes(key));
   }
