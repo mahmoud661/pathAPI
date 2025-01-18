@@ -7,9 +7,11 @@ import express from 'express';
 import cors from 'cors';
 import errorMiddleware from './API/middlewares/error';
 import authRoute from './API/routes/auth';
+import Logger from './infrastructure/logger/consoleLogger';
+import { config } from './config';
 
 const app = express();
-const port = 4000;
+let PORT = (config.port as number) || 4000;
 
 app.use(cors());
 app.use(express.json());
@@ -26,6 +28,6 @@ app.get('/', (req, res) => {
 
 app.use(errorMiddleware);
 
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+app.listen(PORT, () => {
+  Logger.Success(`\x1b[32mServer is running at http://localhost:${PORT}`);
 });
