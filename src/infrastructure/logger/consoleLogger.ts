@@ -47,6 +47,21 @@ class Logger {
       data,
     );
   }
+
+  public static Success(data: any, path: string = ''): void {
+    const now = new Date();
+    console.log(
+      colors.whiteBg + colors.black,
+      now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds(),
+      colors.greenBg,
+      'Success',
+      colors.reset + colors.green,
+      path ? ` related to ${path} ` : '',
+      colors.reset,
+      data,
+      colors.reset,
+    );
+  }
 }
 
 export default Logger;
