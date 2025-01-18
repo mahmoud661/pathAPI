@@ -37,7 +37,7 @@ export class UserService {
     }
     return toGet(user);
   }
-  async confirmEmail(id: number, email: string, isEditor: boolean) {
+  async confirmEmail(id: number, isEditor: boolean) {
     const putUser: PutUserDTO = {
       is_email_confirmed: true,
       is_editor: isEditor,

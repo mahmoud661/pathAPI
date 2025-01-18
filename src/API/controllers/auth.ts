@@ -96,6 +96,7 @@ class AuthController {
     //   user.email,
     //   config.devpathUrl + '/password-recovery?token=' + token,
     // );
+    // TODO: remove token from the response.
     res.status(200).send({ success: true, recoveryToken: token });
   }
   async changePassword(
@@ -105,11 +106,17 @@ class AuthController {
   ): Promise<void> {
     const { password, oldPassword, user, tokenType } = req.body;
     let updatedUser;
-    if (tokenType === Token.RECOVERY_TOKEN && password)
-      updatedUser = await AuthController.userService.updatePassword(user.id, password);
-    else if (password && oldPassword && password === oldPassword)
-      updatedUser = await AuthController.userService.updatePassword(user.id, password);
-
+    if (tokenType === Token.RECOVERY_TOKEN && password) {
+      updatedUser = await AuthController.userService.updatePassword(
+        user.id,
+        password,
+      );
+    } else if (password && oldPassword && password === oldPassword) {
+      updatedUser = await AuthController.userService.updatePassword(
+        user.id,
+        password,
+      );
+    }
     if (!updatedUser) throw new CustomError('Password not match', 400);
 
     // TODO: why to not send alert for the user?
@@ -125,14 +132,13 @@ class AuthController {
     res: Response,
     next: NextFunction,
   ): Promise<void> {
-    const { user, tokenType, isEditor } = req.body;
+    const { user, tokenType, isEditor } = req;
     if (tokenType !== Token.CONFIRM_TOKEN) {
       throw new CustomError('Invalid token', 401);
     }
     const updatedUser = await AuthController.userService.confirmEmail(
       user.id,
-      user.email,
-      isEditor,
+      isEditor!,
     );
     const accessToken = generateAccess(
       updatedUser.id,
