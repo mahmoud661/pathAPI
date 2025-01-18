@@ -3,6 +3,7 @@ import { PostUserDTO } from '../../domain/DTOs/user/PostUserDTO';
 import { PutUserDTO } from '../../domain/DTOs/user/PutUserDTO';
 import { IUser } from '../../domain/entities/IUser';
 import { IUserRepo } from '../../domain/IRepo/IUserRepo';
+import Logger from '../logger/consoleLogger';
 import pool from './DBpool';
 
 export class UserRepo implements IUserRepo {
@@ -55,11 +56,12 @@ export class UserRepo implements IUserRepo {
       .map((field, index) => `${field} = $${index + 1}`)
       .join(', ');
     const values = fields.map((field) => updateData[field as keyof PutUserDTO]);
+    values.pop(); //## remove the undefined values comes with 'updated_at' key
     values.push(new Date().toISOString());
     values.push(String(id));
 
     const query = `
-      UPDATE 'user'
+      UPDATE "user"
       SET ${setClause}
       WHERE id = $${values.length}
       RETURNING *;
