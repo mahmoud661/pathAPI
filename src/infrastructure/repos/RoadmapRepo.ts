@@ -1,4 +1,5 @@
 import { CustomError } from '../../application/exception/customError';
+import { ServerError } from '../../application/exception/serverError';
 import { PostRoadmapDTO } from '../../domain/DTOs/roadmap/PostRoadmapDTO';
 import { PutRoadmapDTO } from '../../domain/DTOs/roadmap/PutRoadmapDTO';
 import { IRoadmap } from '../../domain/entities/IRoadmap';
@@ -14,24 +15,27 @@ export class RoadmapRepo implements IRoadmapRepo {
     return RoadmapRepo._instance;
   }
 
-  async create(roadmap: PostRoadmapDTO): Promise<IRoadmap> {
+  async create(roadmap: IRoadmap): Promise<IRoadmap> {
     const query = `
-      INSERT INTO roadmap (title, description, icon, resources)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO roadmap (title, description, slug, creator, is_official, icon, visibility)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *
     `;
     const values = [
       roadmap.title,
       roadmap.description,
+      roadmap.slug,
+      roadmap.creator,
+      roadmap.is_official,
       roadmap.icon,
-      JSON.stringify(roadmap.resources),
+      roadmap.visibility,
     ];
 
     try {
       const result = await pool.query(query, values);
       return result.rows[0];
     } catch (error: Error | any) {
-      throw new CustomError(error.message, 500, 'RoadmapRepo.create()');
+      throw new ServerError(error.message, 500, 'RoadmapRepo.create()');
     }
   }
 
@@ -94,6 +98,16 @@ export class RoadmapRepo implements IRoadmapRepo {
       return result.rows[0];
     } catch (error: Error | any) {
       throw new CustomError(error.message, 500, 'RoadmapRepo.getById()');
+    }
+  }
+
+  async getBySlug(slug: string): Promise<IRoadmap> {
+    const query = 'SELECT * FROM roadmap WHERE slug = $1';
+    const values = [slug];
+    try {
+      return (await pool.query(query, values)).rows[0];
+    } catch (error: Error | any) {
+      throw new ServerError(error.message, 500, 'RoadmapRepo.getBySlug()');
     }
   }
 

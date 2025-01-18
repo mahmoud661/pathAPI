@@ -4,33 +4,37 @@ import { RoadmapService } from '../../application/service/roadmap.service';
 import { RoadmapRepo } from '../../infrastructure/repos/RoadmapRepo';
 import { authenticate } from '../middlewares/authentication';
 import notEmpty from '../middlewares/notEmpty';
+import allowedTokens from '../middlewares/allowedTokens.middleware';
 
 const router = Router();
 
-const roadmapRepo = RoadmapRepo.instance;
-const roadmapService = new RoadmapService(roadmapRepo);
-const roadmapController = new RoadmapController(roadmapService);
+const repo = RoadmapRepo.instance;
+const service = new RoadmapService(repo);
+const controller = new RoadmapController(service);
 
 router.post(
   '/',
   authenticate,
-  notEmpty('title', 'description' , 'slug'),
-  roadmapController.create.bind(roadmapController),
+  allowedTokens(),
+  notEmpty('title', 'description', 'slug', 'icon'),
+  controller.create,
 );
 
 router.put(
   '/:id',
   authenticate,
-  roadmapController.update.bind(roadmapController),
+  controller.update.bind(controller),
 );
 
 router.delete(
   '/:id',
   authenticate,
-  roadmapController.delete.bind(roadmapController),
+  controller.delete.bind(controller),
 );
 
-router.get('/:id', roadmapController.getById.bind(roadmapController));
-router.get('/', roadmapController.getAll.bind(roadmapController));
+router.get('/check-slug/:slug', controller.slug);
+
+router.get('/:id', controller.getById.bind(controller));
+router.get('/', controller.getAll.bind(controller));
 
 export default router;

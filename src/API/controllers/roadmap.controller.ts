@@ -7,13 +7,20 @@ export class RoadmapController {
   constructor(private readonly roadmapService: RoadmapService) {}
 
   async create(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-    const {user, isEditor, body} = req;
-    if (!req.user.is_editor) {
-      throw new CustomError('Not authorized', 403);
-    }
+    const { user, isEditor, body } = req;
+    const { title, description, slug, icon } = body;
     try {
-      const roadmap = await this.roadmapService.create(req.body);
-      res.status(201).json({ success: true, roadmap });
+      const roadmap = await this.roadmapService.create(
+        {
+          title,
+          description,
+          slug,
+          icon,
+        },
+        user.id,
+        isEditor ?? false,
+      );
+      res.status(201).json({ success: true });
     } catch (error) {
       next(error);
     }
@@ -48,7 +55,9 @@ export class RoadmapController {
 
   async getById(req: Request, res: Response, next: NextFunction) {
     try {
-      const roadmap = await this.roadmapService.getById(parseInt(req.params.id));
+      const roadmap = await this.roadmapService.getById(
+        parseInt(req.params.id),
+      );
       res.status(200).json({ success: true, data: roadmap });
     } catch (error) {
       next(error);
@@ -59,6 +68,16 @@ export class RoadmapController {
     try {
       const roadmaps = await this.roadmapService.getAll();
       res.status(200).json({ success: true, data: roadmaps });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async slug(req: Request, res: Response, next: NextFunction) {
+    const { slug } = req.params;
+    try {
+      await this.roadmapService.checkSlugAvailability(slug);
+      res.status(200).json({ success: true, message: 'Available.' });
     } catch (error) {
       next(error);
     }
