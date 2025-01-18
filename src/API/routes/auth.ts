@@ -4,7 +4,6 @@ import AuthController from '../controllers/auth';
 import { UserRepo } from '../../infrastructure/repos/UserRepo';
 import { UserService } from '../../application/service/user.service';
 import { authenticate } from '../middlewares/authentication';
-import AuthenticatedRequest from '../types/AuthenticatedRequest';
 
 const router = Router();
 
@@ -30,7 +29,7 @@ router.post(
 
 router.post(
   '/change-password',
-  notEmpty('newPassword'),
+  notEmpty('password'),
   authenticate,
   controller.changePassword,
 );
