@@ -6,6 +6,7 @@ const colors = {
   magenta: '\x1b[35m',
   cyan: '\x1b[36m',
   white: '\x1b[37m',
+  black: '\x1b[30m',
   reset: '\x1b[0m',
   redBg: '\x1b[41m',
   greenBg: '\x1b[42m',
@@ -14,6 +15,7 @@ const colors = {
   magentaBg: '\x1b[45m',
   cyanBg: '\x1b[46m',
   whiteBg: '\x1b[47m',
+  blackBg: '\x1b[40m',
 };
 
 export default colors;
