@@ -44,9 +44,16 @@ export class UserService {
     };
     return toGet(await this._repo.update(id, putUser));
   }
-  async updatePassword(id: number, password: string) {
-    if (this.passwordValidator(password)) {
+  async updatePassword(id: number, password: string, oldPassword?: string) {
+    if (!this.passwordValidator(password)) {
       throw new CustomError('Password is not strong enough', 400);
+    }
+    if(oldPassword) {
+      const user = await this._repo.getById(id);
+      const isPasswordMatch = await compare(oldPassword, user.password);
+      if (!isPasswordMatch) {
+        throw new CustomError('Invalid credentials', 401);
+      }
     }
     const putUser: PutUserDTO = {
       password: await hash(password, 10),

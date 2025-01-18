@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction, ErrorRequestHandler } from 'express';
 import { CustomError } from '../../application/exception/customError';
 import Logger from '../../infrastructure/logger/consoleLogger';
+import { ServerError } from '../../application/exception/serverError';
 
 const errorMiddleware: ErrorRequestHandler = (
   err: Error | CustomError,
@@ -16,6 +17,8 @@ const errorMiddleware: ErrorRequestHandler = (
       message: err.message,
     });
     return;
+  } else if (err instanceof ServerError) {
+    Logger.Error(err, err.path);
   }
 
   Logger.Error(err, 'errorMiddleware');

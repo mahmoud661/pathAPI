@@ -13,6 +13,8 @@ import {
 import { isEditor } from '../../application/utils/roleDetermine';
 import Logger from '../../infrastructure/logger/consoleLogger';
 import { config } from '../../config';
+import { ServerError } from '../../application/exception/serverError';
+import { getTokenType } from '../middlewares/authentication';
 
 class AuthController {
   static userService: UserService;
@@ -33,7 +35,7 @@ class AuthController {
       if (error instanceof CustomError) {
         next(error);
       } else {
-        next(new CustomError(error.message, 500, 'authController.register()'));
+        next(new ServerError(error.message, 500, 'authController.register()'));
       }
       return;
     }
@@ -67,7 +69,7 @@ class AuthController {
       if (error instanceof CustomError) {
         next(error);
       } else {
-        next(new CustomError(error.message, 500, 'authController.register()'));
+        next(new ServerError(error.message, 500, 'authController.register()'));
       }
       return;
     }
@@ -88,7 +90,7 @@ class AuthController {
       if (error instanceof CustomError) {
         next(error);
       } else {
-        next(new CustomError(error.message, 500, 'authController.register()'));
+        next(new ServerError(error.message, 500, 'authController.register()'));
       }
       return;
     }
@@ -111,20 +113,32 @@ class AuthController {
     res: Response,
     next: NextFunction,
   ): Promise<void> {
-    const { password, oldPassword, user, tokenType } = req.body;
+    const { user, tokenType } = req;
+    const { password, oldPassword } = req.body;
     let updatedUser;
-    if (tokenType === Token.RECOVERY_TOKEN && password) {
-      updatedUser = await AuthController.userService.updatePassword(
-        user.id,
-        password,
-      );
-    } else if (password && oldPassword && password === oldPassword) {
-      updatedUser = await AuthController.userService.updatePassword(
-        user.id,
-        password,
-      );
+    try {
+      if (tokenType === Token.RECOVERY_TOKEN && password) {
+        updatedUser = await AuthController.userService.updatePassword(
+          user.id,
+          password,
+        );
+      } else if (password && oldPassword) {
+        updatedUser = await AuthController.userService.updatePassword(
+          user.id,
+          password,
+          oldPassword,
+        );
+      }
+      if (!updatedUser) {
+        throw new CustomError(
+          'Invalid request, there are missing fields.',
+          400,
+        );
+      }
+    } catch (error: Error | any) {
+      next(error);
+      return;
     }
-    if (!updatedUser) throw new CustomError('Password not match', 400);
 
     // TODO: why to not send alert for the user?
     const token = generateAccess(

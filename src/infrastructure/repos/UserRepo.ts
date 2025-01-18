@@ -1,4 +1,5 @@
 import { CustomError } from '../../application/exception/customError';
+import { ServerError } from '../../application/exception/serverError';
 import { PostUserDTO } from '../../domain/DTOs/user/PostUserDTO';
 import { PutUserDTO } from '../../domain/DTOs/user/PutUserDTO';
 import { IUser } from '../../domain/entities/IUser';
@@ -33,7 +34,7 @@ export class UserRepo implements IUserRepo {
     try {
       return (await pool.query(query, values)).rows[0];
     } catch (error: Error | any) {
-      throw new CustomError(error.message, 500, 'userRepo.create()');
+      throw new ServerError(error.message, 500, 'userRepo.create()');
     }
   }
   async update(id: number, updateData: PutUserDTO): Promise<IUser> {
@@ -44,8 +45,8 @@ export class UserRepo implements IUserRepo {
     );
 
     if (fields.length === 0) {
-      throw new CustomError(
-        'Internal Server Error',
+      throw new ServerError(
+        'No fields to update',
         500,
         'userRepo.updateUser() -> fields.length',
       );
@@ -71,7 +72,7 @@ export class UserRepo implements IUserRepo {
       const result = await pool.query(query, values);
       return result.rows[0];
     } catch (error: Error | any) {
-      throw new CustomError(error.message, 500, 'userRepo.updateUser()');
+      throw new ServerError(error.message, 500, 'userRepo.updateUser()');
     }
   }
   /**
@@ -89,7 +90,13 @@ export class UserRepo implements IUserRepo {
    * @throws {Error} If the user cannot be found or an error occurs during retrieval.
    */
   async getById(id: number): Promise<IUser> {
-    throw new Error('Method not implemented.');
+    const query = 'SELECT * FROM "user" WHERE id=$1';
+    const value = [id];
+    try {
+      return (await pool.query(query, value)).rows?.[0] as IUser;
+    } catch (error: Error | any) {
+      throw new ServerError(error.message, 500, 'userRepo.getById()');
+    }
   }
   /**
    * Retrieves a user by their email address.
@@ -102,7 +109,7 @@ export class UserRepo implements IUserRepo {
     try {
       return (await pool.query(query, [email])).rows?.[0] as IUser;
     } catch (error: Error | any) {
-      throw new CustomError(error.message, 500, 'userRepo.getByEmail()');
+      throw new ServerError(error.message, 500, 'userRepo.getByEmail()');
     }
   }
 }
