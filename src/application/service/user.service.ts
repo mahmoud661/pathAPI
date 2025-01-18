@@ -60,6 +60,19 @@ export class UserService {
     }
     return toGet(user);
   }
+  async requestRecovery(email: string) {
+    const user = await this._repo.getByEmail(email);
+    if (!user) {
+      throw new CustomError('User not found', 400);
+    }
+    if (!user.is_email_confirmed) {
+      throw new CustomError(
+        "You'r email is not confirmed, you cannot request password recovery.",
+        400,
+      );
+    }
+    return toGet(user);
+  }
   passwordValidator(password: string) {
     const regex = new RegExp(
       '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$',

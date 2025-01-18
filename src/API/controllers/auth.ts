@@ -79,7 +79,7 @@ class AuthController {
     const { email } = req.body;
     let user;
     try {
-      user = await AuthController.userService.getByEmail(email);
+      user = await AuthController.userService.requestRecovery(email);
     } catch (error: Error | any) {
       if (error instanceof CustomError) {
         next(error);
