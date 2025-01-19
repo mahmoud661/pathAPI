@@ -1,9 +1,11 @@
 import { PostRoadmapDTO } from '../../domain/DTOs/roadmap/PostRoadmapDTO';
 import { PutRoadmapDTO } from '../../domain/DTOs/roadmap/PutRoadmapDTO';
 import { IEdge } from '../../domain/entities/IEdge';
+import { IResource } from '../../domain/entities/IResource';
 import { IRoadmap } from '../../domain/entities/IRoadmap';
 import { ITopic } from '../../domain/entities/ITopic';
 import { IEdgeRepo } from '../../domain/IRepo/IEdgeRepo';
+import { IResourceRepo } from '../../domain/IRepo/IResoureRepo';
 import { IRoadmapRepo } from '../../domain/IRepo/IRoadmapRepo';
 import { ITopicRepo } from '../../domain/IRepo/ITopicRepo';
 import Logger from '../../infrastructure/logger/consoleLogger';
@@ -14,6 +16,7 @@ export class RoadmapService {
     private _repo: IRoadmapRepo,
     private _topicRepo: ITopicRepo,
     private _edgeRepo: IEdgeRepo,
+    private _resourceRepo: IResourceRepo,
   ) {}
 
   async create(
@@ -51,7 +54,9 @@ export class RoadmapService {
     const roadmap = await this._repo.getById(id);
     const topics = await this._topicRepo.getByRoadmap(id);
     const edges = await this._edgeRepo.getByRoadmap(id);
-    return { ...roadmap, topics, edges };
+    const resources = await this._resourceRepo.getByRoadmap(id);
+
+    return { ...roadmap, topics, edges, resources };
   }
 
   async getAll() {
@@ -72,4 +77,6 @@ export class RoadmapService {
     await this._topicRepo.create(topics, roadmapId);
     await this._edgeRepo.create(edges, roadmapId);
   }
+
+  async editResources(roadmapId: number, resources: IResource[]) {}
 }

@@ -107,4 +107,9 @@ export class RoadmapController {
       next(error);
     }
   }
+  async editResources(
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) {}
 }

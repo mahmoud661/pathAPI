@@ -1,9 +1,3 @@
-export interface IResource {
-  title: string;
-  icon: string;
-  link: string;
-}
-
 export interface IRoadmap {
   id: number;
   title: string;

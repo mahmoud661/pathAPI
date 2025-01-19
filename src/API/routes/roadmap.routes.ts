@@ -11,16 +11,19 @@ import { ITopicRepo } from '../../domain/IRepo/ITopicRepo';
 import { IEdgeRepo } from '../../domain/IRepo/IEdgeRepo';
 import { EdgeRepo } from '../../infrastructure/repos/EdgeRepo';
 import { IRoadmapRepo } from '../../domain/IRepo/IRoadmapRepo';
+import { IResourceRepo } from '../../domain/IRepo/IResoureRepo';
+import { ResourceRepo } from '../../infrastructure/repos/ResourceRepo';
 
 const router = Router();
 
 const repo: IRoadmapRepo = RoadmapRepo.instance;
 const topicRepo: ITopicRepo = TopicRepo.instance;
 const edgeRepo: IEdgeRepo = EdgeRepo.instance;
-const service = new RoadmapService(repo, topicRepo, edgeRepo);
+const resourceRepo: IResourceRepo = ResourceRepo.instance;
+const service = new RoadmapService(repo, topicRepo, edgeRepo, resourceRepo);
 const controller = new RoadmapController(service);
 
-router.post(
+router.post( // Create a new roadmap
   '/',
   notEmpty('title', 'description', 'slug', 'icon'),
   authenticate,
@@ -28,7 +31,7 @@ router.post(
   controller.create.bind(controller),
 );
 
-router.put(
+router.put( // Update roadmap data
   '/:id',
   authenticate,
   allowedTokens(),
@@ -36,9 +39,7 @@ router.put(
   controller.update.bind(controller),
 );
 
-router.get('/check-slug/:slug', controller.slug.bind(controller));
-
-router.patch(
+router.patch( // update roadmap topics and edges
   '/:id',
   authenticate,
   allowedTokens(),
@@ -46,7 +47,7 @@ router.patch(
   controller.patch.bind(controller),
 );
 
-router.get(
+router.get( // Get roadmap by id
   '/:id',
   authenticate,
   allowedTokens(),
@@ -54,6 +55,10 @@ router.get(
   controller.getById.bind(controller),
 );
 
-router.get('/', controller.getAll.bind(controller));
+router.get('/check-slug/:slug', controller.slug.bind(controller));
+
+router.get('/', controller.getAll.bind(controller)); // get roadmap list
+
+router.put('/resources/:id', controller.editResources.bind(controller));
 
 export default router;
