@@ -23,7 +23,6 @@ router.post(
 
 router.put(
   '/:id',
-  notEmpty('id'),
   authenticate,
   allowedTokens(),
   editorPermission,

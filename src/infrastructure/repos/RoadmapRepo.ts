@@ -31,8 +31,7 @@ export class RoadmapRepo implements IRoadmapRepo {
       roadmap.icon,
       roadmap.visibility,
     ];
-    Logger.Warn('query: ' + query);
-    Logger.Warn('values: ' + values);
+
 
     try {
       const result = await pool.query(query, values);
