@@ -1,6 +1,7 @@
 import { ServerError } from '../../application/exception/serverError';
 import { ITopic } from '../../domain/entities/ITopic';
 import { ITopicRepo } from '../../domain/IRepo/ITopicRepo';
+import Logger from '../logger/consoleLogger';
 import pool from './DBpool';
 
 export class TopicRepo implements ITopicRepo {
@@ -14,20 +15,27 @@ export class TopicRepo implements ITopicRepo {
 
   async create(topics: ITopic[], roadmapId: number): Promise<ITopic[]> {
     const query = `
-      INSERT INTO topic (roadmap, prerequisites, label, type, description, position_x, position_y, skill_name, is_analysis_needed)
+      INSERT INTO topic (id, roadmap, prerequisites, label, type, description, position_x, position_y, skill_name, is_analysis_needed)
       VALUES
         ${topics
           .map(
             (_, index) =>
-              `(${
-                index * 8 + 1
-              }, ${index * 8 + 2}, ${index * 8 + 3}, ${index * 8 + 4}, ${index * 8 + 5}, ${index * 8 + 6}, ${index * 8 + 7}, ${index * 8 + 8},  ${index * 8 + 9})`,
+              `($${index * 10 + 1},
+             $${index * 10 + 2},
+               $${index * 10 + 3},
+                $${index * 10 + 4},
+                 $${index * 10 + 5},
+                  $${index * 10 + 6},
+                   $${index * 10 + 7},
+                    $${index * 10 + 8},
+                     $${index * 10 + 9},
+                     $${index * 10 + 10})`,
           )
-          .join(', ')}
-      RETURNING *;
+          .join(', ')};
     `;
 
     const values = topics.flatMap((topic) => [
+      topic.id,
       roadmapId,
       topic.prerequisites,
       topic.label,
@@ -38,7 +46,7 @@ export class TopicRepo implements ITopicRepo {
       topic.skill_name,
       topic.is_analysis_needed,
     ]);
-
+    console.clear();
     try {
       const result = await pool.query(query, values);
       return result.rows;

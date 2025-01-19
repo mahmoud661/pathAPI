@@ -63,11 +63,7 @@ export class RoadmapService {
     return;
   }
 
-  async updateData(
-    roadmapId: number,
-    topics: ITopic[],
-    edges: IEdge[],
-  ) {
+  async updateData(roadmapId: number, topics: ITopic[], edges: IEdge[]) {
     await this._edgeRepo.delete(roadmapId);
     await this._topicRepo.delete(roadmapId);
     await this._topicRepo.create(topics, roadmapId);

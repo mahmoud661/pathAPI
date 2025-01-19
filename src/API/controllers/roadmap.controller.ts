@@ -85,7 +85,16 @@ export class RoadmapController {
         .send({ success: false, message: 'Invalid id, id must be a number' });
 
     const { topics, edges } = req.body as IPatchBody;
+    try {
+      await this.roadmapService.updateData(id, topics, edges);
+      res.status(204).send();
+    } catch (error) {
+      next(error);
+      return;
+    }
   }
+
+
   async slug(req: Request, res: Response, next: NextFunction) {
     const { slug } = req.params;
     try {
