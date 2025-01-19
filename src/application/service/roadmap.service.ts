@@ -24,6 +24,13 @@ export class RoadmapService {
   }
 
   async update(id: number, putRoadmap: PutRoadmapDTO) {
+    const roadmap = await this._repo.getById(id);
+    if (!roadmap) {
+      throw new CustomError('Roadmap not found', 404);
+    }
+    if (!roadmap.is_official || id !== roadmap.creator) {
+      throw new CustomError('Not authorized', 403);
+    }
     return await this._repo.update(id, putRoadmap);
   }
 
