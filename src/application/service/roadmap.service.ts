@@ -1,12 +1,19 @@
 import { PostRoadmapDTO } from '../../domain/DTOs/roadmap/PostRoadmapDTO';
 import { PutRoadmapDTO } from '../../domain/DTOs/roadmap/PutRoadmapDTO';
+import { IEdge } from '../../domain/entities/IEdge';
 import { IRoadmap } from '../../domain/entities/IRoadmap';
+import { ITopic } from '../../domain/entities/ITopic';
+import { IEdgeRepo } from '../../domain/IRepo/IEdgeRepo';
 import { IRoadmapRepo } from '../../domain/IRepo/IRoadmapRepo';
-import Logger from '../../infrastructure/logger/consoleLogger';
+import { ITopicRepo } from '../../domain/IRepo/ITopicRepo';
 import { CustomError } from '../exception/customError';
 
 export class RoadmapService {
-  constructor(private _repo: IRoadmapRepo) {}
+  constructor(
+    private _repo: IRoadmapRepo,
+    private _topicRepo: ITopicRepo,
+    private _edgeRepo: IEdgeRepo,
+  ) {}
 
   async create(
     postRoadmap: PostRoadmapDTO,
@@ -40,7 +47,8 @@ export class RoadmapService {
   }
 
   async getById(id: number) {
-    return await this._repo.getById(id);
+    const roadmap = await this._repo.getById(id);
+    const topics = await this._topicRepo.getByRoadmap(id);
   }
 
   async getAll() {
@@ -53,5 +61,16 @@ export class RoadmapService {
       throw new CustomError('Slug is not available', 409);
     }
     return;
+  }
+
+  async updateData(
+    roadmapId: number,
+    topics: ITopic[],
+    edges: IEdge[],
+  ) {
+    await this._edgeRepo.delete(roadmapId);
+    await this._topicRepo.delete(roadmapId);
+    await this._topicRepo.create(topics, roadmapId);
+    await this._edgeRepo.create(edges, roadmapId);
   }
 }

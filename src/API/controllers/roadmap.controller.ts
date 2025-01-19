@@ -4,6 +4,7 @@ import { CustomError } from '../../application/exception/customError';
 import AuthenticatedRequest from '../types/AuthenticatedRequest';
 import { PutRoadmapDTO } from '../../domain/DTOs/roadmap/PutRoadmapDTO';
 import Logger from '../../infrastructure/logger/consoleLogger';
+import { IPatchBody } from '../types/roadmapsRequests';
 
 export class RoadmapController {
   constructor(private readonly roadmapService: RoadmapService) {}
@@ -76,6 +77,15 @@ export class RoadmapController {
     }
   }
 
+  async patch(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    const id = Number(req.params.id);
+    if (isNaN(id))
+      res
+        .status(400)
+        .send({ success: false, message: 'Invalid id, id must be a number' });
+
+    const { topics, edges } = req.body as IPatchBody;
+  }
   async slug(req: Request, res: Response, next: NextFunction) {
     const { slug } = req.params;
     try {

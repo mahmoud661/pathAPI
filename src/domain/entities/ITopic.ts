@@ -1,18 +1,15 @@
-export interface IPosition {
-  x: number;
-  y: number;
-}
-
 export interface ITopic {
-  id: number;
-  roadmap_id: number;
+  roadmap: number;
+  prerequisites: string;
   label: string;
   type: string;
-  is_achieved: boolean;
+  description: string;
+  position_x: number;
+  position_y: number;
   skill_name: string;
   is_analysis_needed: boolean;
-  prerequisites: string;
-  position: IPosition;
   created_at: Date;
   updated_at: Date;
 }
+
+// TODO: remove z_index form DB

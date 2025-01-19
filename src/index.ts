@@ -1,12 +1,12 @@
 import { ErrorHandler } from 'postmark/dist/client/errors/ErrorHandler';
-import coursesRoute from './API/routes/CoursesRoute';
-import jobsRoute from './API/routes/JobsRoute';
+import coursesRoute from './API/routes/course.routes';
+import jobsRoute from './API/routes/jobs.routes';
 import roadmapRoute from './API/routes/roadmap.routes';
 import profileRoute from './API/routes/profile.routes';
 import express from 'express';
 import cors from 'cors';
 import errorMiddleware from './API/middlewares/error';
-import authRoute from './API/routes/auth';
+import authRoute from './API/routes/auth.routes';
 import Logger from './infrastructure/logger/consoleLogger';
 import { config } from './config';
 
