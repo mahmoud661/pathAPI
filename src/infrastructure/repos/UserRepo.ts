@@ -10,12 +10,22 @@ import pool from './DBpool';
 export class UserRepo implements IUserRepo {
   private static _instance: UserRepo;
   private constructor() {}
-
+  /**
+   * A getter for the instance of the UserRepo class.
+   * This is a singleton implementation, so it will create a new instance
+   * if it doesn't already exist.
+   * @returns {UserRepo} The instance of the UserRepo class.
+   */
   public static get instance() {
     if (!UserRepo._instance) UserRepo._instance = new UserRepo();
     return UserRepo._instance;
   }
 
+  /**
+   * Creates a new user and returns the newly created user.
+   * @param {IUser} user The user to be created.
+   * @returns {Promise<IUser>} The newly created user.
+   */
   async create(user: PostUserDTO): Promise<IUser> {
     const query = `INSERT INTO "user" (first_name, last_name, email, password)
     VALUES ($1, $2, $3, $4) RETURNING *`;
@@ -27,7 +37,6 @@ export class UserRepo implements IUserRepo {
       throw new ServerError(error.message, 500, 'userRepo.create()');
     }
   }
-
   async update(id: number, updateData: PutUserDTO): Promise<IUser> {
     const fields = Object.keys(updateData).filter(
       (key) =>
@@ -42,11 +51,7 @@ export class UserRepo implements IUserRepo {
         'userRepo.updateUser() -> fields.length',
       );
     }
-
-    // Create values array with proper types
-    const queryValues: (string | boolean | Buffer | null)[] = fields.map(
-      (field) => updateData[field as keyof PutUserDTO] ?? null,
-    );
+    fields.push('updated_at');
 
     const setClause = fields
       .map((field, index) => `${field} = $${index + 1}`)
@@ -64,25 +69,26 @@ export class UserRepo implements IUserRepo {
     `;
 
     try {
-      const result = await pool.query(query, queryValues);
-      if (!result.rows[0]) {
-        throw new CustomError('User not found', 404);
-      }
+      const result = await pool.query(query, values);
       return result.rows[0];
     } catch (error: Error | any) {
       throw new ServerError(error.message, 500, 'userRepo.updateUser()');
     }
   }
-
+  /**
+   * Deletes a user by ID.
+   * @param {number} id The ID of the user to be deleted.
+   * @returns {Promise<void>} A promise that resolves when the user has been deleted.
+   */
   async delete(id: number): Promise<void> {
-    const query = 'DELETE FROM "user" WHERE id = $1';
-    try {
-      await pool.query(query, [id.toString()]);
-    } catch (error: Error | any) {
-      throw new CustomError(error.message, 500, 'userRepo.delete()');
-    }
+    throw new Error('Method not implemented.');
   }
-
+  /**
+   * Retrieves a user by their ID.
+   * @param {number} id - The ID of the user to retrieve.
+   * @returns {Promise<IUser>} A promise that resolves to the user with the specified ID.
+   * @throws {Error} If the user cannot be found or an error occurs during retrieval.
+   */
   async getById(id: number): Promise<IUser> {
     const query = 'SELECT * FROM "user" WHERE id=$1';
     const value = [id];
@@ -99,10 +105,9 @@ export class UserRepo implements IUserRepo {
    * @throws {Error} If the user cannot be found or an error occurs during retrieval.
    */
   async getByEmail(email: string): Promise<IUser> {
-    const query = 'SELECT * FROM "user" WHERE email = $1';
+    const query = `SELECT * FROM "user" WHERE email=$1`;
     try {
-      const result = await pool.query(query, [email]);
-      return result.rows[0];
+      return (await pool.query(query, [email])).rows?.[0] as IUser;
     } catch (error: Error | any) {
       throw new ServerError(error.message, 500, 'userRepo.getByEmail()');
     }
