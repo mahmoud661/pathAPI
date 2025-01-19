@@ -20,19 +20,11 @@ router.post(
   controller.create,
 );
 
-router.put(
-  '/:id',
-  authenticate,
-  controller.update.bind(controller),
-);
+router.put('/:id', authenticate, controller.update.bind(controller));
 
-router.delete(
-  '/:id',
-  authenticate,
-  controller.delete.bind(controller),
-);
+router.delete('/:id', authenticate, controller.delete.bind(controller));
 
-router.get('/check-slug/:slug', controller.slug);
+router.get('/check-slug/:slug', controller.slug.bind(controller));
 
 router.get('/:id', controller.getById.bind(controller));
 router.get('/', controller.getAll.bind(controller));
