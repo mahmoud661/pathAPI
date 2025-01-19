@@ -13,7 +13,8 @@ export class TopicRepo implements ITopicRepo {
     return TopicRepo._instance;
   }
 
-  async create(topics: ITopic[], roadmapId: number): Promise<ITopic[]> {
+  async create(topics: ITopic[], roadmapId: number): Promise<void> {
+    if (topics.length) return;
     const query = `
       INSERT INTO topic (id, roadmap, prerequisites, label, type, description, position_x, position_y, skill_name, is_analysis_needed)
       VALUES
@@ -21,15 +22,15 @@ export class TopicRepo implements ITopicRepo {
           .map(
             (_, index) =>
               `($${index * 10 + 1},
-             $${index * 10 + 2},
-               $${index * 10 + 3},
-                $${index * 10 + 4},
-                 $${index * 10 + 5},
-                  $${index * 10 + 6},
-                   $${index * 10 + 7},
-                    $${index * 10 + 8},
-                     $${index * 10 + 9},
-                     $${index * 10 + 10})`,
+            $${index * 10 + 2},
+            $${index * 10 + 3},
+            $${index * 10 + 4},
+            $${index * 10 + 5},
+            $${index * 10 + 6},
+            $${index * 10 + 7},
+            $${index * 10 + 8},
+            $${index * 10 + 9},
+            $${index * 10 + 10})`,
           )
           .join(', ')};
     `;
@@ -48,8 +49,8 @@ export class TopicRepo implements ITopicRepo {
     ]);
     console.clear();
     try {
-      const result = await pool.query(query, values);
-      return result.rows;
+      await pool.query(query, values);
+      return;
     } catch (error: Error | any) {
       throw new ServerError(error.message, 500, 'RoadmapRepo.create()');
     }

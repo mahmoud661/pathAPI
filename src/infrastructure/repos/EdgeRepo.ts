@@ -12,6 +12,7 @@ export class EdgeRepo implements IEdgeRepo {
     return EdgeRepo._instance;
   }
   async create(edges: IEdge[], roadmapId: number): Promise<void> {
+    if(edges.length === 0) return;
     const query = `
     INSERT INTO edge (id, roadmap, source, target, target_handle, source_handle, line_style, animation, type)
     VALUES
