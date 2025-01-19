@@ -87,13 +87,12 @@ export class RoadmapController {
     const { topics, edges } = req.body as IPatchBody;
     try {
       await this.roadmapService.updateData(id, topics, edges);
-      res.status(204).send();
+      res.status(200).send({ success: true });
     } catch (error) {
       next(error);
       return;
     }
   }
-
 
   async slug(req: Request, res: Response, next: NextFunction) {
     const { slug } = req.params;
