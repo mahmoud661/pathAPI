@@ -13,17 +13,15 @@ export class EdgeRepo implements IEdgeRepo {
   }
   async create(edges: IEdge[], roadmapId: number): Promise<void> {
     const query = `
-    INSERT INTO edge (source, target, target_handle, source_handle, line_style, animation, type)
+    INSERT INTO edge (id, roadmap, source, target, target_handle, source_handle, line_style, animation, type)
     VALUES
       ${edges
         .map(
           (_, index) =>
-            `(${
-              index * 7 + 1
-            }, ${index * 7 + 2}, ${index * 7 + 3}, ${index * 7 + 4}, ${index * 7 + 5}, ${index * 7 + 6}, ${index * 7 + 7})`,
+            `(${index * 9 + 1}, ${index * 9 + 2}, ${index * 9 + 3},${index * 9 + 4}, ${index * 9 + 5},
+            ${index * 9 + 6}, ${index * 9 + 7}, ${index * 9 + 8}, ${index * 9 + 9})`,
         )
-        .join(', ')}
-    RETURNING *;
+        .join(', ')};
   `;
 
     const values = edges.flatMap((edge) => [
