@@ -3,6 +3,7 @@ import { RoadmapService } from '../../application/service/roadmap.service';
 import { CustomError } from '../../application/exception/customError';
 import AuthenticatedRequest from '../types/AuthenticatedRequest';
 import { PutRoadmapDTO } from '../../domain/DTOs/roadmap/PutRoadmapDTO';
+import Logger from '../../infrastructure/logger/consoleLogger';
 
 export class RoadmapController {
   constructor(private readonly roadmapService: RoadmapService) {}
@@ -16,14 +17,14 @@ export class RoadmapController {
         user.id,
         isEditor ?? false,
       );
-      res.status(201).json({ success: true });
+      res.status(201).json({ success: true, roadmap });
     } catch (error) {
       next(error);
     }
   }
 
   async update(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-    const id = Number(req.query.id);
+    const id = Number(req.params.id);
     if (isNaN(id))
       res
         .status(400)
