@@ -72,9 +72,10 @@ export class RoadmapController {
     }
   }
 
-  async getAll(req: Request, res: Response, next: NextFunction) {
+  async getAll(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    const { user, isEditor } = req;
     try {
-      const roadmaps = await this.roadmapService.getAll();
+      const roadmaps = await this.roadmapService.getAll(user.id, isEditor!);
       res.status(200).json({ success: true, data: roadmaps });
     } catch (error) {
       next(error);

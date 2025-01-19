@@ -59,8 +59,16 @@ export class RoadmapService {
     return { ...roadmap, topics, edges, resources };
   }
 
-  async getAll() {
-    return await this._repo.getAll();
+  async getAll(userId: number, is_editor: boolean) {
+    const roadmaps = await this._repo.getAll();
+    const userRoadmaps = await this._repo.getFollowed(userId);
+    const createdRoadmaps = await this._repo.getByCreator(userId);
+    const response = {
+      roadmaps,
+      userRoadmaps,
+      createdRoadmaps,
+    };
+    return await response;
   }
 
   async checkSlugAvailability(slug: string): Promise<void> {

@@ -32,7 +32,6 @@ export class RoadmapRepo implements IRoadmapRepo {
       roadmap.visibility,
     ];
 
-
     try {
       const result = await pool.query(query, values);
       return result.rows[0];
@@ -119,6 +118,30 @@ export class RoadmapRepo implements IRoadmapRepo {
       return result.rows;
     } catch (error: Error | any) {
       throw new CustomError(error.message, 500, 'RoadmapRepo.getAll()');
+    }
+  }
+
+  async getFollowed(userId: number): Promise<IRoadmap[]> {
+    const query = `
+      SELECT r.id, r.title, r.description, r.slug, r.icon, r.visibility, r.created_at, r.updated_at
+      FROM public.roadmap r
+      JOIN public.follow f ON f.roadmap = r.id
+      WHERE f.user_id=${userId} AND visibility!='hidden';`;
+    try {
+      const result = await pool.query(query);
+      return result.rows;
+    } catch (error: Error | any) {
+      throw new CustomError(error.message, 500, 'RoadmapRepo.getFollowed()');
+    }
+  }
+
+  async getByCreator(userId: number): Promise<IRoadmap[]> {
+    const query = `SELECT * FROM roadmap WHERE creator = ${userId} ORDER BY created_at DESC`;
+    try {
+      const result = await pool.query(query);
+      return result.rows;
+    } catch (error: Error | any) {
+      throw new CustomError(error.message, 500, 'RoadmapRepo.getByCreator()');
     }
   }
 }

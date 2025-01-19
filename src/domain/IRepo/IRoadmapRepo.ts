@@ -9,4 +9,6 @@ export interface IRoadmapRepo {
   getById(id: number): Promise<IRoadmap>;
   getBySlug(slug: string): Promise<IRoadmap>;
   getAll(): Promise<IRoadmap[]>;
+  getFollowed(userId: number): Promise<IRoadmap[]>
+  getByCreator(userId: number): Promise<IRoadmap[]>
 }
