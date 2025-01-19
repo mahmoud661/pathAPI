@@ -23,7 +23,8 @@ const resourceRepo: IResourceRepo = ResourceRepo.instance;
 const service = new RoadmapService(repo, topicRepo, edgeRepo, resourceRepo);
 const controller = new RoadmapController(service);
 
-router.post( // Create a new roadmap
+router.post(
+  // Create a new roadmap
   '/',
   notEmpty('title', 'description', 'slug', 'icon'),
   authenticate,
@@ -31,7 +32,8 @@ router.post( // Create a new roadmap
   controller.create.bind(controller),
 );
 
-router.put( // Update roadmap data
+router.put(
+  // Update roadmap data
   '/:id',
   authenticate,
   allowedTokens(),
@@ -39,7 +41,8 @@ router.put( // Update roadmap data
   controller.update.bind(controller),
 );
 
-router.patch( // update roadmap topics and edges
+router.patch(
+  // update roadmap topics and edges
   '/:id',
   authenticate,
   allowedTokens(),
@@ -47,12 +50,21 @@ router.patch( // update roadmap topics and edges
   controller.patch.bind(controller),
 );
 
-router.get( // Get roadmap by id
+router.get(
+  // Get roadmap by id
   '/:id',
   authenticate,
   allowedTokens(),
   editorPermission,
   controller.getById.bind(controller),
+);
+
+router.post(
+  '/publish/:id',
+  authenticate,
+  allowedTokens(),
+  editorPermission,
+  controller.publish.bind(controller),
 );
 
 router.get('/check-slug/:slug', controller.slug.bind(controller));

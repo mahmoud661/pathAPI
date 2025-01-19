@@ -112,4 +112,19 @@ export class RoadmapController {
     res: Response,
     next: NextFunction,
   ) {}
+
+  async publish(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    const id = Number(req.params.id);
+    const { user } = req;
+    if (isNaN(id))
+      res
+        .status(400)
+        .send({ success: false, message: 'Invalid id, id must be a number' });
+    try {
+      const roadmap = await this.roadmapService.updateVisibility(id, user.id);
+      res.status(200).json({ success: true, roadmap });
+    } catch (error) {
+      next(error);
+    }
+  }
 }

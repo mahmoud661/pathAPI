@@ -79,4 +79,18 @@ export class RoadmapService {
   }
 
   async editResources(roadmapId: number, resources: IResource[]) {}
+
+  async updateVisibility(roadmapId: number, userId: number): Promise<IRoadmap> {
+    const roadmap = await this._repo.getById(roadmapId);
+    if (!roadmap) {
+      throw new CustomError('Roadmap not found', 404);
+    }
+    if (!roadmap.is_official || roadmap.creator !== userId) {
+      throw new CustomError('not authorized', 403);
+    }
+    const putRoadmap: PutRoadmapDTO = {
+      visibility: roadmap.visibility === 'public' ? 'hidden' : 'public',
+    };
+    return await this._repo.update(roadmapId, putRoadmap);
+  }
 }

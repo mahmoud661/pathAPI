@@ -3,4 +3,5 @@ export interface PutRoadmapDTO {
   description?: string;
   slug?: string;
   icon?: string;
+  visibility?: string;
 }
