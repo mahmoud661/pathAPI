@@ -15,6 +15,7 @@ export class TopicRepo implements ITopicRepo {
 
   async create(topics: ITopic[], roadmapId: number): Promise<void> {
     if (topics.length) return;
+    Logger.Debug('arrived the create roadmap topics');
     const query = `
       INSERT INTO topic (id, roadmap, prerequisites, label, type, description, position_x, position_y, skill_name, is_analysis_needed)
       VALUES
