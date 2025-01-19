@@ -18,13 +18,15 @@ export class EdgeRepo implements IEdgeRepo {
       ${edges
         .map(
           (_, index) =>
-            `(${index * 9 + 1}, ${index * 9 + 2}, ${index * 9 + 3},${index * 9 + 4}, ${index * 9 + 5},
-            ${index * 9 + 6}, ${index * 9 + 7}, ${index * 9 + 8}, ${index * 9 + 9})`,
+            `($${index * 9 + 1}, $${index * 9 + 2}, $${index * 9 + 3},$${index * 9 + 4}, $${index * 9 + 5},
+            $${index * 9 + 6}, $${index * 9 + 7}, $${index * 9 + 8}, $${index * 9 + 9})`,
         )
         .join(', ')};
   `;
 
     const values = edges.flatMap((edge) => [
+      edge.id,
+      roadmapId,
       edge.source,
       edge.target,
       edge.target_handle,
@@ -32,7 +34,7 @@ export class EdgeRepo implements IEdgeRepo {
       edge.line_style,
       edge.animation,
       edge.type,
-    ]);
+    ]); 
     try {
       const edgesBefore = (await this.getByRoadmap(roadmapId)).length;
       const result = (await pool.query(query, values)).rowCount;
