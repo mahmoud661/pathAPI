@@ -58,11 +58,15 @@ export class RoadmapController {
   }
 
   async getById(req: Request, res: Response, next: NextFunction) {
+    const id = Number(req.params.id);
+    if (isNaN(id))
+      res
+        .status(400)
+        .send({ success: false, message: 'Invalid id, id must be a number' });
+
     try {
-      const roadmap = await this.roadmapService.getById(
-        parseInt(req.params.id),
-      );
-      res.status(200).json({ success: true, data: roadmap });
+      const roadmap = await this.roadmapService.getById(id);
+      res.status(200).json({ success: true, roadmap });
     } catch (error) {
       next(error);
     }

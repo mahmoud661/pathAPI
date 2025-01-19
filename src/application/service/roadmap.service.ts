@@ -50,6 +50,8 @@ export class RoadmapService {
   async getById(id: number) {
     const roadmap = await this._repo.getById(id);
     const topics = await this._topicRepo.getByRoadmap(id);
+    const edges = await this._edgeRepo.getByRoadmap(id);
+    return { ...roadmap, topics, edges };
   }
 
   async getAll() {

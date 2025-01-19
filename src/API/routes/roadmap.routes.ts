@@ -46,8 +46,14 @@ router.patch(
   controller.patch.bind(controller),
 );
 
-router.delete('/:id', authenticate, controller.delete.bind(controller));
-router.get('/:id', controller.getById.bind(controller));
+router.get(
+  '/:id',
+  authenticate,
+  allowedTokens(),
+  editorPermission,
+  controller.getById.bind(controller),
+);
+
 router.get('/', controller.getAll.bind(controller));
 
 export default router;
