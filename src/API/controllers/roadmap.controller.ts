@@ -33,7 +33,11 @@ export class RoadmapController {
     const putRoadmap: PutRoadmapDTO = { ...req.body };
 
     try {
-      const roadmap = await this.roadmapService.update(id, putRoadmap);
+      const roadmap = await this.roadmapService.update(
+        id,
+        putRoadmap,
+        req.user.id,
+      );
       res.status(200).json({ success: true, roadmap });
     } catch (error) {
       next(error);

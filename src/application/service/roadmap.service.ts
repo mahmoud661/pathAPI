@@ -2,6 +2,7 @@ import { PostRoadmapDTO } from '../../domain/DTOs/roadmap/PostRoadmapDTO';
 import { PutRoadmapDTO } from '../../domain/DTOs/roadmap/PutRoadmapDTO';
 import { IRoadmap } from '../../domain/entities/IRoadmap';
 import { IRoadmapRepo } from '../../domain/IRepo/IRoadmapRepo';
+import Logger from '../../infrastructure/logger/consoleLogger';
 import { CustomError } from '../exception/customError';
 
 export class RoadmapService {
@@ -23,12 +24,12 @@ export class RoadmapService {
     return await this._repo.create(newRoadmap);
   }
 
-  async update(id: number, putRoadmap: PutRoadmapDTO) {
+  async update(id: number, putRoadmap: PutRoadmapDTO, userId: number) {
     const roadmap = await this._repo.getById(id);
     if (!roadmap) {
       throw new CustomError('Roadmap not found', 404);
     }
-    if (!roadmap.is_official || id !== roadmap.creator) {
+    if (!roadmap.is_official || userId !== roadmap.creator) {
       throw new CustomError('Not authorized', 403);
     }
     return await this._repo.update(id, putRoadmap);
