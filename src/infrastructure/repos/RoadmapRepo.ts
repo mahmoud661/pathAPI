@@ -4,6 +4,7 @@ import { PostRoadmapDTO } from '../../domain/DTOs/roadmap/PostRoadmapDTO';
 import { PutRoadmapDTO } from '../../domain/DTOs/roadmap/PutRoadmapDTO';
 import { IRoadmap } from '../../domain/entities/IRoadmap';
 import { IRoadmapRepo } from '../../domain/IRepo/IRoadmapRepo';
+import Logger from '../logger/consoleLogger';
 import pool from './DBpool';
 
 export class RoadmapRepo implements IRoadmapRepo {
@@ -30,6 +31,8 @@ export class RoadmapRepo implements IRoadmapRepo {
       roadmap.icon,
       roadmap.visibility,
     ];
+    Logger.Warn('query: ' + query);
+    Logger.Warn('values: ' + values);
 
     try {
       const result = await pool.query(query, values);
@@ -41,7 +44,9 @@ export class RoadmapRepo implements IRoadmapRepo {
 
   async update(id: number, updateData: PutRoadmapDTO): Promise<IRoadmap> {
     const fields = Object.keys(updateData).filter(
-      (key) => updateData[key as keyof PutRoadmapDTO] !== undefined,
+      (key) =>
+        updateData[key as keyof PutRoadmapDTO] !== undefined &&
+        updateData[key as keyof PutRoadmapDTO] !== null,
     );
 
     if (fields.length === 0) {
@@ -52,18 +57,15 @@ export class RoadmapRepo implements IRoadmapRepo {
       .map((field, index) => `${field} = $${index + 1}`)
       .join(', ');
 
-    // Create values array with proper types
-    const queryValues: any[] = fields.map((field) => {
-      const value = updateData[field as keyof PutRoadmapDTO];
-      return field === 'resources' ? JSON.stringify(value) : value;
-    });
+    const queryValues: any[] = fields.map(
+      (field) => updateData[field as keyof PutRoadmapDTO],
+    );
 
-    // Add id as the last parameter
     queryValues.push(id);
 
     const query = `
       UPDATE roadmap
-      SET ${setClause}, updated_at = NOW()
+      SET ${setClause}
       WHERE id = $${queryValues.length}
       RETURNING *
     `;
@@ -75,7 +77,7 @@ export class RoadmapRepo implements IRoadmapRepo {
       }
       return result.rows[0];
     } catch (error: Error | any) {
-      throw new CustomError(error.message, 500, 'RoadmapRepo.update()');
+      throw new ServerError(error.message, 500, 'RoadmapRepo.update()');
     }
   }
 

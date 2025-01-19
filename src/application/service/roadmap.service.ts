@@ -12,10 +12,11 @@ export class RoadmapService {
     user_id: number,
     is_editor: boolean,
   ) {
+    await this.checkSlugAvailability(postRoadmap.slug);
     const newRoadmap: IRoadmap = {
       ...postRoadmap,
       id: 0,
-      creator: 0,
+      creator: user_id,
       is_official: is_editor,
       visibility: is_editor ? 'hidden' : 'private',
     };

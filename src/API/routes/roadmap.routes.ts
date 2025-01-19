@@ -4,7 +4,8 @@ import { RoadmapService } from '../../application/service/roadmap.service';
 import { RoadmapRepo } from '../../infrastructure/repos/RoadmapRepo';
 import { authenticate } from '../middlewares/authentication';
 import notEmpty from '../middlewares/notEmpty';
-import allowedTokens from '../middlewares/allowedTokens.middleware';
+import allowedTokens from '../middlewares/allowedTokens.guard';
+import { editorPermission } from '../middlewares/editorPermission.guard';
 
 const router = Router();
 
@@ -14,13 +15,20 @@ const controller = new RoadmapController(service);
 
 router.post(
   '/',
+  notEmpty('title', 'description', 'slug', 'icon'),
   authenticate,
   allowedTokens(),
-  notEmpty('title', 'description', 'slug', 'icon'),
-  controller.create,
+  controller.create.bind(controller),
 );
 
-router.put('/:id', authenticate, controller.update.bind(controller));
+router.put(
+  '/:id',
+  notEmpty('id'),
+  authenticate,
+  allowedTokens(),
+  editorPermission,
+  controller.update.bind(controller),
+);
 
 router.delete('/:id', authenticate, controller.delete.bind(controller));
 

@@ -2,21 +2,17 @@ import { Request, Response, NextFunction } from 'express';
 import { RoadmapService } from '../../application/service/roadmap.service';
 import { CustomError } from '../../application/exception/customError';
 import AuthenticatedRequest from '../types/AuthenticatedRequest';
+import { PutRoadmapDTO } from '../../domain/DTOs/roadmap/PutRoadmapDTO';
 
 export class RoadmapController {
   constructor(private readonly roadmapService: RoadmapService) {}
 
   async create(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     const { user, isEditor, body } = req;
-    const { title, description, slug, icon } = body;
+    const postedRoadmap = { ...body };
     try {
       const roadmap = await this.roadmapService.create(
-        {
-          title,
-          description,
-          slug,
-          icon,
-        },
+        postedRoadmap,
         user.id,
         isEditor ?? false,
       );
@@ -27,15 +23,17 @@ export class RoadmapController {
   }
 
   async update(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    const id = Number(req.query.id);
+    if (isNaN(id))
+      res
+        .status(400)
+        .send({ success: false, message: 'Invalid id, id must be a number' });
+
+    const putRoadmap: PutRoadmapDTO = { ...req.body };
+
     try {
-      if (!req.user.is_editor) {
-        throw new CustomError('Not authorized', 403);
-      }
-      const roadmap = await this.roadmapService.update(
-        parseInt(req.params.id),
-        req.body,
-      );
-      res.status(200).json({ success: true, data: roadmap });
+      const roadmap = await this.roadmapService.update(id, putRoadmap);
+      res.status(200).json({ success: true, roadmap });
     } catch (error) {
       next(error);
     }
