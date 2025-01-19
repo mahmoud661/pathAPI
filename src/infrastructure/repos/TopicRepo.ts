@@ -15,7 +15,6 @@ export class TopicRepo implements ITopicRepo {
 
   async create(topics: ITopic[], roadmapId: number): Promise<void> {
     if (topics.length) return;
-    Logger.Debug('arrived the create roadmap topics');
     const query = `
       INSERT INTO topic (id, roadmap, prerequisites, label, type, description, position_x, position_y, skill_name, is_analysis_needed)
       VALUES
@@ -50,7 +49,7 @@ export class TopicRepo implements ITopicRepo {
     ]);
     console.clear();
     try {
-      await pool.query(query, values);
+      Logger.Debug((await pool.query(query, values)).rows);
       return;
     } catch (error: Error | any) {
       throw new ServerError(error.message, 500, 'RoadmapRepo.create()');
