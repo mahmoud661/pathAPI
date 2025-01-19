@@ -2,6 +2,7 @@ import { CustomError } from '../../application/exception/customError';
 import { ServerError } from '../../application/exception/serverError';
 import { IEdge } from '../../domain/entities/IEdge';
 import { IEdgeRepo } from '../../domain/IRepo/IEdgeRepo';
+import Logger from '../logger/consoleLogger';
 import pool from './DBpool';
 
 export class EdgeRepo implements IEdgeRepo {
@@ -12,7 +13,8 @@ export class EdgeRepo implements IEdgeRepo {
     return EdgeRepo._instance;
   }
   async create(edges: IEdge[], roadmapId: number): Promise<void> {
-    if(edges.length === 0) return;
+    Logger.Debug('EdgeRepo.create()');
+    if (edges.length === 0) return;
     const query = `
     INSERT INTO edge (id, roadmap, source, target, target_handle, source_handle, line_style, animation, type)
     VALUES
@@ -35,7 +37,7 @@ export class EdgeRepo implements IEdgeRepo {
       edge.line_style,
       edge.animation,
       edge.type,
-    ]); 
+    ]);
     try {
       const edgesBefore = (await this.getByRoadmap(roadmapId)).length;
       const result = (await pool.query(query, values)).rowCount;
@@ -49,6 +51,7 @@ export class EdgeRepo implements IEdgeRepo {
     }
   }
   async delete(roadmapId: number): Promise<void> {
+    Logger.Debug('EdgeRepo.delete()');
     const query = `DELETE FROM edge WHERE roadmap=$1`;
     try {
       await pool.query(query, [roadmapId]);

@@ -14,7 +14,8 @@ export class TopicRepo implements ITopicRepo {
   }
 
   async create(topics: ITopic[], roadmapId: number): Promise<void> {
-    if (topics.length) return;
+    Logger.Debug('TopicRepo.create()');
+    if (!topics.length) return;
     const query = `
       INSERT INTO topic (id, roadmap, prerequisites, label, type, description, position_x, position_y, skill_name, is_analysis_needed)
       VALUES
@@ -47,15 +48,15 @@ export class TopicRepo implements ITopicRepo {
       topic.skill_name,
       topic.is_analysis_needed,
     ]);
-    console.clear();
     try {
-      Logger.Debug((await pool.query(query, values)).rows);
+      await pool.query(query, values);
       return;
     } catch (error: Error | any) {
       throw new ServerError(error.message, 500, 'RoadmapRepo.create()');
     }
   }
   async delete(roadmapId: number): Promise<void> {
+    Logger.Debug('TopicRepo.delete()');
     const query = `DELETE FROM topic WHERE roadmap=$1`;
     try {
       await pool.query(query, [roadmapId]);

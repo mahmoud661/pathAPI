@@ -6,6 +6,7 @@ import { ITopic } from '../../domain/entities/ITopic';
 import { IEdgeRepo } from '../../domain/IRepo/IEdgeRepo';
 import { IRoadmapRepo } from '../../domain/IRepo/IRoadmapRepo';
 import { ITopicRepo } from '../../domain/IRepo/ITopicRepo';
+import Logger from '../../infrastructure/logger/consoleLogger';
 import { CustomError } from '../exception/customError';
 
 export class RoadmapService {
