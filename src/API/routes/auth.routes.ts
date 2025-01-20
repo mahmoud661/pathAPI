@@ -1,9 +1,9 @@
 import Router from 'express';
-import notEmpty from '../middlewares/notEmpty';
-import AuthController from '../controllers/auth';
+import notEmpty from '../middlewares/data.guard';
+import AuthController from '../controllers/auth.controller';
 import { UserRepo } from '../../infrastructure/repos/UserRepo';
 import { UserService } from '../../application/service/user.service';
-import { authenticate } from '../middlewares/authentication';
+import { authenticate } from '../middlewares/auth.guard';
 
 const router = Router();
 

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { ProfileController } from '../controllers/profile.controller';
 import { ProfileService } from '../../application/service/profile.service';
 import { UserRepo } from '../../infrastructure/repos/UserRepo';
-import { authenticate } from '../middlewares/authentication';
+import { authenticate } from '../middlewares/auth.guard';
 
 const router = Router();
 

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { ICoursesService } from '../../../infrastructure/CoursesService/ICoursesService';
-import Logger from '../../../infrastructure/logger/consoleLogger';
+import { ICoursesService } from '../../infrastructure/CoursesService/ICoursesService';
+import Logger from '../../infrastructure/logger/consoleLogger';
 
 export class CoursesController {
   constructor(private readonly coursesService: ICoursesService) {}

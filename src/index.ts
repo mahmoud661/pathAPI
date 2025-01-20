@@ -5,7 +5,7 @@ import roadmapRoute from './API/routes/roadmap.routes';
 import profileRoute from './API/routes/profile.routes';
 import express from 'express';
 import cors from 'cors';
-import errorMiddleware from './API/middlewares/error';
+import errorMiddleware from './API/middlewares/error.middleware';
 import authRoute from './API/routes/auth.routes';
 import Logger from './infrastructure/logger/consoleLogger';
 import { config } from './config';
