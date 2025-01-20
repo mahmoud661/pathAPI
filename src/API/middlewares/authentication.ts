@@ -3,7 +3,6 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import { config } from '../../config';
 import AuthenticatedRequest from '../types/AuthenticatedRequest';
 import Logger from '../../infrastructure/logger/consoleLogger';
-import Token from '../../application/types/token';
 
 const authenticate = (
   req: AuthenticatedRequest,

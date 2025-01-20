@@ -62,6 +62,21 @@ class Logger {
       colors.reset,
     );
   }
+
+  public static Debug(data: any, path: string = ''): void {
+    const now = new Date();
+    console.log(
+      colors.whiteBg + colors.black,
+      now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds(),
+      colors.magentaBg,
+      'Debug',
+      colors.reset + colors.magenta,
+      path ? ` related to ${path} ` : '',
+      colors.reset,
+      data,
+      colors.reset,
+    );
+  }
 }
 
 export default Logger;

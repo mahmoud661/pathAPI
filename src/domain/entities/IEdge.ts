@@ -1,11 +1,11 @@
 export interface IEdge {
   id: string;
-  roadmap_id: number;
-  source: string;
-  target: string;
+  source: number;
+  target: number;
+  roadmap: number;
   source_handle: string;
   target_handle: string;
+  line_style: string;
+  animation: boolean;
   type: string;
-  style: Record<string, any>;
-  updated_at: Date;
 }

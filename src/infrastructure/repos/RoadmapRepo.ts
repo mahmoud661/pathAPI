@@ -1,8 +1,10 @@
 import { CustomError } from '../../application/exception/customError';
+import { ServerError } from '../../application/exception/serverError';
 import { PostRoadmapDTO } from '../../domain/DTOs/roadmap/PostRoadmapDTO';
 import { PutRoadmapDTO } from '../../domain/DTOs/roadmap/PutRoadmapDTO';
 import { IRoadmap } from '../../domain/entities/IRoadmap';
 import { IRoadmapRepo } from '../../domain/IRepo/IRoadmapRepo';
+import Logger from '../logger/consoleLogger';
 import pool from './DBpool';
 
 export class RoadmapRepo implements IRoadmapRepo {
@@ -14,30 +16,35 @@ export class RoadmapRepo implements IRoadmapRepo {
     return RoadmapRepo._instance;
   }
 
-  async create(roadmap: PostRoadmapDTO): Promise<IRoadmap> {
+  async create(roadmap: IRoadmap): Promise<IRoadmap> {
     const query = `
-      INSERT INTO roadmap (title, description, icon, resources)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO roadmap (title, description, slug, creator, is_official, icon, visibility)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *
     `;
     const values = [
       roadmap.title,
       roadmap.description,
+      roadmap.slug,
+      roadmap.creator,
+      roadmap.is_official,
       roadmap.icon,
-      JSON.stringify(roadmap.resources),
+      roadmap.visibility,
     ];
 
     try {
       const result = await pool.query(query, values);
       return result.rows[0];
     } catch (error: Error | any) {
-      throw new CustomError(error.message, 500, 'RoadmapRepo.create()');
+      throw new ServerError(error.message, 500, 'RoadmapRepo.create()');
     }
   }
 
   async update(id: number, updateData: PutRoadmapDTO): Promise<IRoadmap> {
     const fields = Object.keys(updateData).filter(
-      (key) => updateData[key as keyof PutRoadmapDTO] !== undefined,
+      (key) =>
+        updateData[key as keyof PutRoadmapDTO] !== undefined &&
+        updateData[key as keyof PutRoadmapDTO] !== null,
     );
 
     if (fields.length === 0) {
@@ -48,18 +55,15 @@ export class RoadmapRepo implements IRoadmapRepo {
       .map((field, index) => `${field} = $${index + 1}`)
       .join(', ');
 
-    // Create values array with proper types
-    const queryValues: any[] = fields.map((field) => {
-      const value = updateData[field as keyof PutRoadmapDTO];
-      return field === 'resources' ? JSON.stringify(value) : value;
-    });
+    const queryValues: any[] = fields.map(
+      (field) => updateData[field as keyof PutRoadmapDTO],
+    );
 
-    // Add id as the last parameter
     queryValues.push(id);
 
     const query = `
       UPDATE roadmap
-      SET ${setClause}, updated_at = NOW()
+      SET ${setClause}
       WHERE id = $${queryValues.length}
       RETURNING *
     `;
@@ -71,7 +75,7 @@ export class RoadmapRepo implements IRoadmapRepo {
       }
       return result.rows[0];
     } catch (error: Error | any) {
-      throw new CustomError(error.message, 500, 'RoadmapRepo.update()');
+      throw new ServerError(error.message, 500, 'RoadmapRepo.update()');
     }
   }
 
@@ -97,6 +101,16 @@ export class RoadmapRepo implements IRoadmapRepo {
     }
   }
 
+  async getBySlug(slug: string): Promise<IRoadmap> {
+    const query = 'SELECT * FROM roadmap WHERE slug = $1';
+    const values = [slug];
+    try {
+      return (await pool.query(query, values)).rows[0];
+    } catch (error: Error | any) {
+      throw new ServerError(error.message, 500, 'RoadmapRepo.getBySlug()');
+    }
+  }
+
   async getAll(): Promise<IRoadmap[]> {
     const query = 'SELECT * FROM roadmap ORDER BY created_at DESC';
     try {
@@ -104,6 +118,30 @@ export class RoadmapRepo implements IRoadmapRepo {
       return result.rows;
     } catch (error: Error | any) {
       throw new CustomError(error.message, 500, 'RoadmapRepo.getAll()');
+    }
+  }
+
+  async getFollowed(userId: number): Promise<IRoadmap[]> {
+    const query = `
+      SELECT r.id, r.title, r.description, r.slug, r.icon, r.visibility, r.created_at, r.updated_at
+      FROM public.roadmap r
+      JOIN public.follow f ON f.roadmap = r.id
+      WHERE f.user_id=${userId} AND visibility!='hidden';`;
+    try {
+      const result = await pool.query(query);
+      return result.rows;
+    } catch (error: Error | any) {
+      throw new CustomError(error.message, 500, 'RoadmapRepo.getFollowed()');
+    }
+  }
+
+  async getByCreator(userId: number): Promise<IRoadmap[]> {
+    const query = `SELECT * FROM roadmap WHERE creator = ${userId} ORDER BY created_at DESC`;
+    try {
+      const result = await pool.query(query);
+      return result.rows;
+    } catch (error: Error | any) {
+      throw new CustomError(error.message, 500, 'RoadmapRepo.getByCreator()');
     }
   }
 }

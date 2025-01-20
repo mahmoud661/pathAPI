@@ -1,8 +1,7 @@
-import { IResource } from '../../entities/IRoadmap';
-
 export interface PutRoadmapDTO {
   title?: string;
   description?: string;
+  slug?: string;
   icon?: string;
-  resources?: IResource[];
+  visibility?: string;
 }

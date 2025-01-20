@@ -4,33 +4,73 @@ import { RoadmapService } from '../../application/service/roadmap.service';
 import { RoadmapRepo } from '../../infrastructure/repos/RoadmapRepo';
 import { authenticate } from '../middlewares/authentication';
 import notEmpty from '../middlewares/notEmpty';
+import allowedTokens from '../middlewares/allowedTokens.guard';
+import { editorPermission } from '../middlewares/editorPermission.guard';
+import { TopicRepo } from '../../infrastructure/repos/TopicRepo';
+import { ITopicRepo } from '../../domain/IRepo/ITopicRepo';
+import { IEdgeRepo } from '../../domain/IRepo/IEdgeRepo';
+import { EdgeRepo } from '../../infrastructure/repos/EdgeRepo';
+import { IRoadmapRepo } from '../../domain/IRepo/IRoadmapRepo';
+import { IResourceRepo } from '../../domain/IRepo/IResoureRepo';
+import { ResourceRepo } from '../../infrastructure/repos/ResourceRepo';
 
 const router = Router();
 
-const roadmapRepo = RoadmapRepo.instance;
-const roadmapService = new RoadmapService(roadmapRepo);
-const roadmapController = new RoadmapController(roadmapService);
+const repo: IRoadmapRepo = RoadmapRepo.instance;
+const topicRepo: ITopicRepo = TopicRepo.instance;
+const edgeRepo: IEdgeRepo = EdgeRepo.instance;
+const resourceRepo: IResourceRepo = ResourceRepo.instance;
+const service = new RoadmapService(repo, topicRepo, edgeRepo, resourceRepo);
+const controller = new RoadmapController(service);
 
 router.post(
+  // Create a new roadmap
   '/',
+  notEmpty('title', 'description', 'slug', 'icon'),
   authenticate,
-  notEmpty('title', 'description' , 'slug'),
-  roadmapController.create.bind(roadmapController),
+  allowedTokens(),
+  controller.create.bind(controller),
 );
 
 router.put(
+  // Update roadmap data
   '/:id',
   authenticate,
-  roadmapController.update.bind(roadmapController),
+  allowedTokens(),
+  editorPermission,
+  controller.update.bind(controller),
 );
 
-router.delete(
+router.patch(
+  // update roadmap topics and edges
   '/:id',
   authenticate,
-  roadmapController.delete.bind(roadmapController),
+  allowedTokens(),
+  editorPermission,
+  controller.patch.bind(controller),
 );
 
-router.get('/:id', roadmapController.getById.bind(roadmapController));
-router.get('/', roadmapController.getAll.bind(roadmapController));
+router.get(
+  // Get roadmap by id
+  '/:id',
+  authenticate,
+  allowedTokens(),
+  editorPermission,
+  controller.getById.bind(controller),
+);
+
+router.post(
+  '/publish/:id',
+  authenticate,
+  allowedTokens(),
+  editorPermission,
+  controller.publish.bind(controller),
+);
+
+router.get('/check-slug/:slug', controller.slug.bind(controller));
+
+router.get('/', controller.getAll.bind(controller)); // get roadmap list
+
+router.put('/resources/:id', controller.editResources.bind(controller));
 
 export default router;

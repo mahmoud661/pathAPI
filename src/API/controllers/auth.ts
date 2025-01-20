@@ -73,7 +73,7 @@ class AuthController {
       return;
     }
 
-    const accessToken = generateAccess(user.id, user.email, false);
+    const accessToken = generateAccess(user.id, user.email, user.is_editor);
     res.status(200).send({ success: true, token: accessToken });
   }
   async requestPasswordRecovery(

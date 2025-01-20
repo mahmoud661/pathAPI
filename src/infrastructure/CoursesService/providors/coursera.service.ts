@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 import axios from 'axios';
 import { Course } from './types';
+import Logger from '../../logger/consoleLogger';
 const COURSERA_ACCESS_TOKEN = process.env.COURSERA_ACCESS_TOKEN;
 
 // Function to fetch top courses from Coursera
@@ -11,7 +12,6 @@ interface CourseraCourse {
   photoUrl: string;
   slug: string;
 }
-
 
 export const fetchCourseraCourses = async (
   keyword: string,
@@ -37,7 +37,7 @@ export const fetchCourseraCourses = async (
       price: 'Subscription',
     }));
   } catch (error) {
-    console.error('Error fetching Coursera courses:', error);
+    Logger.Error('Failed to fetch courses', 'Coursera service');
     return [];
   }
 };
