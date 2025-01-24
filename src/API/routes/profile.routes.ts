@@ -13,14 +13,14 @@ const profileController = new ProfileController(profileService);
 // Get user profile
 router.get(
   '/',
-  authenticate,
+  authenticate(),
   profileController.getProfile
 );
 
 // Update user profile
 router.put(
   '/',
-  authenticate,
+  authenticate(),
   profileController.updateProfile.bind(profileController)
 );
 

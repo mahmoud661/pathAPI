@@ -13,7 +13,7 @@ export interface ToolConfig {
 }
 
 export const toolConfig: ToolConfig = {
-  key: ['ahu.edu.jo'],
-  match: MatchingStrategy.DOMAIN_INCLUDE,
+  key: ['@devpath.com'],
+  match: MatchingStrategy.DOMAIN,
   regex: undefined,
 };

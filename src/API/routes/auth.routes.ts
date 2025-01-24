@@ -30,10 +30,10 @@ router.post(
 router.post(
   '/change-password',
   notEmpty('password'),
-  authenticate,
+  authenticate(),
   controller.changePassword,
 );
 
-router.post('/confirm-email', authenticate, controller.confirmEmail);
+router.post('/confirm-email', authenticate(), controller.confirmEmail);
 
 export default router;

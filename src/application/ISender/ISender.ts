@@ -3,3 +3,5 @@ interface ISender {
   resetPassword(...args: any[]): Promise<any>;
   announce(...args: any[]): Promise<any>;
 }
+
+export default ISender;

@@ -27,7 +27,7 @@ router.post(
   // Create a new roadmap
   '/',
   notEmpty('title', 'description', 'slug', 'icon'),
-  authenticate,
+  authenticate(),
   allowedTokens(),
   controller.create.bind(controller),
 );
@@ -35,7 +35,7 @@ router.post(
 router.put(
   // Update roadmap data
   '/:id',
-  authenticate,
+  authenticate(),
   allowedTokens(),
   editorPermission,
   controller.update.bind(controller),
@@ -44,24 +44,22 @@ router.put(
 router.patch(
   // update roadmap topics and edges
   '/:id',
-  authenticate,
+  authenticate(),
   allowedTokens(),
   editorPermission,
   controller.patch.bind(controller),
 );
 
 router.get(
-  // Get roadmap by id
-  '/:id',
-  authenticate,
-  allowedTokens(),
-  editorPermission,
-  controller.getById.bind(controller),
+  // Get roadmap by slug
+  '/:slug',
+  authenticate(false),
+  controller.getBySlug.bind(controller),
 );
 
 router.post(
   '/publish/:id',
-  authenticate,
+  authenticate(),
   allowedTokens(),
   editorPermission,
   controller.publish.bind(controller),
@@ -69,7 +67,7 @@ router.post(
 
 router.get('/check-slug/:slug', controller.slug.bind(controller));
 
-router.get('/', controller.getAll.bind(controller)); // get roadmap list
+router.get('/', authenticate(false), controller.getAll.bind(controller));
 
 router.put('/resources/:id', controller.editResources.bind(controller));
 
