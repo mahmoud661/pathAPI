@@ -4,9 +4,8 @@ import { PutRoadmapDTO } from '../DTOs/roadmap/PutRoadmapDTO';
 
 export interface IRoadmapRepo {
   create(roadmap: IRoadmap): Promise<IRoadmap>;
-  update(id: number, roadmap: PutRoadmapDTO): Promise<IRoadmap>;
-  delete(id: number): Promise<void>;
-  getById(id: number): Promise<IRoadmap>;
+  update(slug: string, roadmap: PutRoadmapDTO): Promise<IRoadmap>;
+  delete(slug: string): Promise<void>;
   getBySlug(slug: string): Promise<IRoadmap>;
   getAll(): Promise<IRoadmap[]>;
   getFollowed(userId: number): Promise<IRoadmap[]>

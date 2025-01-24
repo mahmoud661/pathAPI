@@ -1,6 +1,7 @@
 import { PostUserDTO } from '../../domain/DTOs/user/PostUserDTO';
 import { PutUserDTO } from '../../domain/DTOs/user/PutUserDTO';
 import { IUserRepo } from '../../domain/IRepo/IUserRepo';
+import Logger from '../../infrastructure/logger/consoleLogger';
 import { CustomError } from '../exception/customError';
 import { toGet } from '../utils/userMapping';
 import { hash, compare } from 'bcrypt';

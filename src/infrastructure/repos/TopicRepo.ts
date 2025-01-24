@@ -14,7 +14,6 @@ export class TopicRepo implements ITopicRepo {
   }
 
   async create(topics: ITopic[], roadmapId: number): Promise<void> {
-    Logger.Debug('TopicRepo.create()');
     if (!topics.length) return;
     const query = `
       INSERT INTO topic (id, roadmap, prerequisites, label, type, description, position_x, position_y, skill_name, is_analysis_needed)
@@ -56,7 +55,6 @@ export class TopicRepo implements ITopicRepo {
     }
   }
   async delete(roadmapId: number): Promise<void> {
-    Logger.Debug('TopicRepo.delete()');
     const query = `DELETE FROM topic WHERE roadmap=$1`;
     try {
       await pool.query(query, [roadmapId]);

@@ -1,4 +1,3 @@
-import { CustomError } from '../../application/exception/customError';
 import { ServerError } from '../../application/exception/serverError';
 import { PostUserDTO } from '../../domain/DTOs/user/PostUserDTO';
 import { PutUserDTO } from '../../domain/DTOs/user/PutUserDTO';

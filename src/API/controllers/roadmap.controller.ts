@@ -25,17 +25,13 @@ export class RoadmapController {
   }
 
   async update(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-    const id = Number(req.params.id);
-    if (isNaN(id))
-      res
-        .status(400)
-        .send({ success: false, message: 'Invalid id, id must be a number' });
+    const slug = req.params.slug;
 
     const putRoadmap: PutRoadmapDTO = { ...req.body };
 
     try {
       const roadmap = await this.roadmapService.update(
-        id,
+        slug,
         putRoadmap,
         req.user.id,
       );
@@ -50,22 +46,26 @@ export class RoadmapController {
       if (!req.user.is_editor) {
         throw new CustomError('Not authorized', 403);
       }
-      await this.roadmapService.delete(parseInt(req.params.id));
+      await this.roadmapService.delete(req.params.string);
       res.status(204).send();
     } catch (error) {
       next(error);
     }
   }
 
-  async getById(req: Request, res: Response, next: NextFunction) {
-    const id = Number(req.params.id);
-    if (isNaN(id))
-      res
-        .status(400)
-        .send({ success: false, message: 'Invalid id, id must be a number' });
+  async getBySlug(
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) {
+    const slug = req.params.slug;
+    const user = req.user;
 
     try {
-      const roadmap = await this.roadmapService.getById(id);
+      const roadmap = await this.roadmapService.getBySlug(
+        slug,
+        (user && user.id) || 0,
+      );
       res.status(200).json({ success: true, roadmap });
     } catch (error) {
       next(error);
@@ -74,8 +74,13 @@ export class RoadmapController {
 
   async getAll(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     const { user, isEditor } = req;
+    Logger.Debug(`user id: ${user?.id} request all roadmaps`);
+
     try {
-      const roadmaps = await this.roadmapService.getAll(user.id, isEditor!);
+      const roadmaps = await this.roadmapService.getAll(
+        (user && user.id) || 0,
+        isEditor!,
+      );
       res.status(200).json({ success: true, data: roadmaps });
     } catch (error) {
       next(error);
@@ -115,14 +120,11 @@ export class RoadmapController {
   ) {}
 
   async publish(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-    const id = Number(req.params.id);
+    const slug = req.params.slug;
     const { user } = req;
-    if (isNaN(id))
-      res
-        .status(400)
-        .send({ success: false, message: 'Invalid id, id must be a number' });
+
     try {
-      const roadmap = await this.roadmapService.updateVisibility(id, user.id);
+      const roadmap = await this.roadmapService.updateVisibility(slug, user.id);
       res.status(200).json({ success: true, roadmap });
     } catch (error) {
       next(error);

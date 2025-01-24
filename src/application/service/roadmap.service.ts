@@ -35,34 +35,37 @@ export class RoadmapService {
     return await this._repo.create(newRoadmap);
   }
 
-  async update(id: number, putRoadmap: PutRoadmapDTO, userId: number) {
-    const roadmap = await this._repo.getById(id);
+  async update(slug: string, putRoadmap: PutRoadmapDTO, userId: number) {
+    const roadmap = await this._repo.getBySlug(slug);
     if (!roadmap) {
       throw new CustomError('Roadmap not found', 404);
     }
     if (!roadmap.is_official || userId !== roadmap.creator) {
       throw new CustomError('Not authorized', 403);
     }
-    return await this._repo.update(id, putRoadmap);
+    return await this._repo.update(slug, putRoadmap);
   }
 
-  async delete(id: number) {
-    await this._repo.delete(id);
+  async delete(slug: string) {
+    await this._repo.delete(slug);
   }
 
-  async getById(id: number) {
-    const roadmap = await this._repo.getById(id);
-    const topics = await this._topicRepo.getByRoadmap(id);
-    const edges = await this._edgeRepo.getByRoadmap(id);
-    const resources = await this._resourceRepo.getByRoadmap(id);
+  async getBySlug(slug: string, userId: number) {
+    const roadmap = await this._repo.getBySlug(slug);
+    const roadmapId = roadmap.id;
+    const topics = await this._topicRepo.getByRoadmap(roadmapId);
+    const edges = await this._edgeRepo.getByRoadmap(roadmapId);
+    const resources = await this._resourceRepo.getByRoadmap(roadmapId);
 
     return { ...roadmap, topics, edges, resources };
   }
 
-  async getAll(userId: number, is_editor: boolean) {
+  async getAll(userId: number, isEditor: boolean) {
+    const userRoadmaps = userId ? await this._repo.getFollowed(userId) : [];
+    const createdRoadmaps = isEditor
+      ? await this._repo.getByCreator(userId)
+      : [];
     const roadmaps = await this._repo.getAll();
-    const userRoadmaps = await this._repo.getFollowed(userId);
-    const createdRoadmaps = await this._repo.getByCreator(userId);
     const response = {
       roadmaps,
       userRoadmaps,
@@ -88,8 +91,8 @@ export class RoadmapService {
 
   async editResources(roadmapId: number, resources: IResource[]) {}
 
-  async updateVisibility(roadmapId: number, userId: number): Promise<IRoadmap> {
-    const roadmap = await this._repo.getById(roadmapId);
+  async updateVisibility(slug: string, userId: number): Promise<IRoadmap> {
+    const roadmap = await this._repo.getBySlug(slug);
     if (!roadmap) {
       throw new CustomError('Roadmap not found', 404);
     }
@@ -99,6 +102,6 @@ export class RoadmapService {
     const putRoadmap: PutRoadmapDTO = {
       visibility: roadmap.visibility === 'public' ? 'hidden' : 'public',
     };
-    return await this._repo.update(roadmapId, putRoadmap);
+    return await this._repo.update(slug, putRoadmap);
   }
 }

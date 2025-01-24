@@ -63,7 +63,6 @@ export const generateRecovery = (
  * @returns {string} The name of the token type, such as 'Access', 'Email Confirm', or 'Password Recovery'.
  *                   Returns 'Unknown Type' if the type is not recognized.
  */
-
 export const getTokenName = (tokenType: Token): string => {
   switch (tokenType) {
     case Token.ACCESS_TOKEN:

@@ -40,7 +40,7 @@ export class RoadmapRepo implements IRoadmapRepo {
     }
   }
 
-  async update(id: number, updateData: PutRoadmapDTO): Promise<IRoadmap> {
+  async update(slug: string, updateData: PutRoadmapDTO): Promise<IRoadmap> {
     const fields = Object.keys(updateData).filter(
       (key) =>
         updateData[key as keyof PutRoadmapDTO] !== undefined &&
@@ -59,12 +59,12 @@ export class RoadmapRepo implements IRoadmapRepo {
       (field) => updateData[field as keyof PutRoadmapDTO],
     );
 
-    queryValues.push(id);
+    queryValues.push(slug);
 
     const query = `
       UPDATE roadmap
       SET ${setClause}
-      WHERE id = $${queryValues.length}
+      WHERE slug = $${queryValues.length}
       RETURNING *
     `;
 
@@ -79,25 +79,12 @@ export class RoadmapRepo implements IRoadmapRepo {
     }
   }
 
-  async delete(id: number): Promise<void> {
-    const query = 'DELETE FROM roadmap WHERE id = $1';
+  async delete(slug: string): Promise<void> {
+    const query = 'DELETE FROM roadmap WHERE string = $1';
     try {
-      await pool.query(query, [id]);
+      await pool.query(query, [slug]);
     } catch (error: Error | any) {
       throw new CustomError(error.message, 500, 'RoadmapRepo.delete()');
-    }
-  }
-
-  async getById(id: number): Promise<IRoadmap> {
-    const query = 'SELECT * FROM roadmap WHERE id = $1';
-    try {
-      const result = await pool.query(query, [id]);
-      if (!result.rows[0]) {
-        throw new CustomError('Roadmap not found', 404);
-      }
-      return result.rows[0];
-    } catch (error: Error | any) {
-      throw new CustomError(error.message, 500, 'RoadmapRepo.getById()');
     }
   }
 
