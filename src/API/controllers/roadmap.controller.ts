@@ -3,7 +3,6 @@ import { RoadmapService } from '../../application/service/roadmap.service';
 import { CustomError } from '../../application/exception/customError';
 import AuthenticatedRequest from '../types/AuthenticatedRequest';
 import { PutRoadmapDTO } from '../../domain/DTOs/roadmap/PutRoadmapDTO';
-import Logger from '../../infrastructure/logger/consoleLogger';
 import { IPatchBody } from '../types/roadmapsRequests';
 
 export class RoadmapController {
@@ -19,6 +18,45 @@ export class RoadmapController {
         isEditor ?? false,
       );
       res.status(201).json({ success: true, roadmap });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async createGenerated(
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) {
+    const { user, isEditor, body } = req;
+    const postedRoadmap = { ...body };
+
+    try {
+      const roadmap = await this.roadmapService.create(
+        postedRoadmap,
+        user.id,
+        isEditor ?? false,
+      );
+      res.status(201).json({ success: true, roadmap });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async postRoadmapData(
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) {
+    const { user } = req;
+    const { topics, edges } = req.body as IPatchBody;
+    try {
+      const roadmap = await this.roadmapService.updateData(
+        Number(req.params.id),
+        topics,
+        edges,
+      );
+      res.status(200).json({ success: true, roadmap });
     } catch (error) {
       next(error);
     }
