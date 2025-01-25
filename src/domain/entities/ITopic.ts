@@ -11,6 +11,7 @@ export interface ITopic {
   is_analysis_needed: boolean;
   created_at: Date;
   updated_at: Date;
+  is_achieved?: boolean;
 }
 
 // TODO: remove z_index form DB
