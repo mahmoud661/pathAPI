@@ -74,12 +74,15 @@ export class RoadmapController {
 
   async getAll(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     const { user, isEditor } = req;
+    const { page = 1, limit = 1000 } = req.query;
     Logger.Debug(`user id: ${user?.id} request all roadmaps`);
 
     try {
       const roadmaps = await this.roadmapService.getAll(
         (user && user.id) || 0,
         isEditor!,
+        page as number, // TODO: Safety check
+        limit as number,
       );
       res.status(200).json({ success: true, data: roadmaps });
     } catch (error) {
@@ -113,11 +116,24 @@ export class RoadmapController {
       next(error);
     }
   }
+
   async editResources(
     req: AuthenticatedRequest,
     res: Response,
     next: NextFunction,
-  ) {}
+  ) {
+    const { user } = req;
+    const { resources } = req.body;
+    try {
+      const updatedResources = await this.roadmapService.updateResources(
+        resources,
+        user.id,
+      );
+      res.status(200).json({ success: true, resources: updatedResources });
+    } catch (error) {
+      next(error);
+    }
+  }
 
   async publish(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     const slug = req.params.slug;
@@ -126,6 +142,28 @@ export class RoadmapController {
     try {
       const roadmap = await this.roadmapService.updateVisibility(slug, user.id);
       res.status(200).json({ success: true, roadmap });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async follow(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    const slug = req.params.slug;
+    const { user } = req;
+
+    try {
+      const roadmap = await this.roadmapService.follow(slug, user.id);
+      res.status(200).json({ success: true, roadmap });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getResources(req: Request, res: Response, next: NextFunction) {
+    const slug = req.params.slug;
+    try {
+      const resources = await this.roadmapService.getResources(slug);
+      res.status(200).json({ success: true, resources });
     } catch (error) {
       next(error);
     }
