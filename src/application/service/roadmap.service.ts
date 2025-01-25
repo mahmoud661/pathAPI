@@ -57,11 +57,19 @@ export class RoadmapService {
     const roadmap = await this._repo.getBySlug(slug);
     if (!roadmap) throw new CustomError('Roadmap not found', 404);
     const roadmapId = roadmap.id;
-    const topics = await this._topicRepo.getByRoadmap(roadmapId);
+    const topics: ITopic[] = await this._topicRepo.getByRoadmap(roadmapId);
     const edges = await this._edgeRepo.getByRoadmap(roadmapId);
     const resources = await this._resourceRepo.getByRoadmap(roadmapId);
     const isFollowed = await this._followRepo.isFollowing(roadmapId, userId);
-
+    if (userId) {
+      const achieved = await this._topicRepo.getAchievedInRoadmap(
+        userId,
+        roadmapId,
+      );
+      topics.forEach((topic) => {
+        topic.is_achieved = achieved.some((t) => t.id === topic.id);
+      });
+    }
     return {
       ...toGet(roadmap),
       isFollowed,
