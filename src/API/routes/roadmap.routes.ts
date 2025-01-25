@@ -120,7 +120,7 @@ router.put(
   authenticate(),
   allowedTokens(),
   editorPermission,
-  controller.patch.bind(controller),
+  controller.putRoadmapData.bind(controller),
 );
 
 export default router;

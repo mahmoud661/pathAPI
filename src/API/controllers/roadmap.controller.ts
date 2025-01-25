@@ -89,8 +89,8 @@ export class RoadmapController {
     }
   }
 
-  async patch(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-    const id = Number(req.params.id);
+  async putRoadmapData(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    const id = Number(req.body.id);
     if (isNaN(id))
       res
         .status(400)
