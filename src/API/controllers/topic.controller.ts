@@ -1,5 +1,6 @@
 import { NextFunction, Response } from 'express';
 import AuthenticatedRequest from '../types/AuthenticatedRequest';
+import Logger from '../../infrastructure/logger/consoleLogger';
 
 export class TopicController {
   constructor(private topicService: any) {}
@@ -30,7 +31,7 @@ export class TopicController {
 
   async achieve(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      this.topicService.achieve(req.params.id, req.user.id);
+      await this.topicService.achieve(req.params.id, req.user.id);
       res.status(200).send({ success: true });
     } catch (error: Error | any) {
       next(error);

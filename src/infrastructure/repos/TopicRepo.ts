@@ -1,3 +1,4 @@
+import { CustomError } from '../../application/exception/customError';
 import { ServerError } from '../../application/exception/serverError';
 import { ITopic } from '../../domain/entities/ITopic';
 import { ITopicRepo } from '../../domain/IRepo/ITopicRepo';
@@ -75,11 +76,15 @@ export class TopicRepo implements ITopicRepo {
   }
 
   async achieve(topic: number, user: number): Promise<void> {
-    const query = 'INSERT INTO topic_achieved (topic, user) VALUES ($1, $2)';
+    const query = 'INSERT INTO achieved_topic VALUES ($1, $2)';
     try {
-      await pool.query(query, [topic, user]);
+      await pool.query(query, [user, topic]);
     } catch (error: Error | any) {
-      throw new ServerError(error.message, 500, 'TopicRepo.achieve()');
+      if (error.code === '23505') {
+        throw new CustomError('Topic already achieved', 400);
+      } else {
+        throw new ServerError(error.message, 500, 'TopicRepo.achieve()');
+      }
     }
   }
 

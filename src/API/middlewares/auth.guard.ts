@@ -8,7 +8,6 @@ const authenticate =
   (isRequired: boolean = true) =>
   (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
     const token = req.header('Authorization')?.split(' ')[1];
-    Logger.Debug('token: ' + token, 'authenticate middleware');
     if (!token) {
       if (isRequired) {
         res.status(401).json({ message: 'Not authorized, token not found' });
