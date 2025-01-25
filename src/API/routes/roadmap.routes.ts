@@ -13,30 +13,38 @@ import { EdgeRepo } from '../../infrastructure/repos/EdgeRepo';
 import { IRoadmapRepo } from '../../domain/IRepo/IRoadmapRepo';
 import { IResourceRepo } from '../../domain/IRepo/IResoureRepo';
 import { ResourceRepo } from '../../infrastructure/repos/ResourceRepo';
+import { IFollowRepo } from '../../domain/IRepo/IFollowRepo';
+import { FollowRepo } from '../../infrastructure/repos/FollowRepo';
 
 const router = Router();
 
+// * Repos (DI)
 const repo: IRoadmapRepo = RoadmapRepo.instance;
 const topicRepo: ITopicRepo = TopicRepo.instance;
 const edgeRepo: IEdgeRepo = EdgeRepo.instance;
 const resourceRepo: IResourceRepo = ResourceRepo.instance;
-const service = new RoadmapService(repo, topicRepo, edgeRepo, resourceRepo);
+const followRepo: IFollowRepo = FollowRepo.instance;
+
+const service = new RoadmapService(
+  repo,
+  topicRepo,
+  edgeRepo,
+  resourceRepo,
+  followRepo,
+);
 const controller = new RoadmapController(service);
 
 // *******************************
 // *******      GET      *********
 // *******************************
 
+router.get('/', authenticate(false), controller.getAll.bind(controller)); // get roadmap list
+
 router.get('/check-slug/:slug', controller.slug.bind(controller));
 
-router.get('/', controller.getAll.bind(controller)); // get roadmap list
-
 router.get(
-  // Get roadmap by id
   '/:slug',
-  authenticate(),
-  allowedTokens(),
-  editorPermission,
+  authenticate(false),
   controller.getBySlug.bind(controller),
 );
 
@@ -59,11 +67,21 @@ router.post(
  * publish / hide a roadmap
  */
 router.post(
-  '/publish/:id',
+  '/publish/:slug',
   authenticate(),
   allowedTokens(),
   editorPermission,
   controller.publish.bind(controller),
+);
+
+/**
+ * follow a roadmap
+ */
+router.post(
+  '/follow/:slug',
+  authenticate(),
+  allowedTokens(),
+  controller.follow.bind(controller),
 );
 
 // *******************************

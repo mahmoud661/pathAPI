@@ -5,11 +5,13 @@ import { IResource } from '../../domain/entities/IResource';
 import { IRoadmap } from '../../domain/entities/IRoadmap';
 import { ITopic } from '../../domain/entities/ITopic';
 import { IEdgeRepo } from '../../domain/IRepo/IEdgeRepo';
+import { IFollowRepo } from '../../domain/IRepo/IFollowRepo';
 import { IResourceRepo } from '../../domain/IRepo/IResoureRepo';
 import { IRoadmapRepo } from '../../domain/IRepo/IRoadmapRepo';
 import { ITopicRepo } from '../../domain/IRepo/ITopicRepo';
 import Logger from '../../infrastructure/logger/consoleLogger';
 import { CustomError } from '../exception/customError';
+import { toGet } from '../utils/roadmapMapping';
 
 export class RoadmapService {
   constructor(
@@ -17,6 +19,7 @@ export class RoadmapService {
     private _topicRepo: ITopicRepo,
     private _edgeRepo: IEdgeRepo,
     private _resourceRepo: IResourceRepo,
+    private _followRepo: IFollowRepo,
   ) {}
 
   async create(
@@ -52,22 +55,35 @@ export class RoadmapService {
 
   async getBySlug(slug: string, userId: number) {
     const roadmap = await this._repo.getBySlug(slug);
+    if (!roadmap) throw new CustomError('Roadmap not found', 404);
     const roadmapId = roadmap.id;
     const topics = await this._topicRepo.getByRoadmap(roadmapId);
     const edges = await this._edgeRepo.getByRoadmap(roadmapId);
     const resources = await this._resourceRepo.getByRoadmap(roadmapId);
+    const isFollowed = await this._followRepo.isFollowing(roadmapId, userId);
 
-    return { ...roadmap, topics, edges, resources };
+    return {
+      ...toGet(roadmap),
+      isFollowed,
+      isEditable: userId === roadmap.creator && roadmap.is_official,
+      topics,
+      edges,
+      resources,
+    };
   }
 
-  async getAll(userId: number, isEditor: boolean) {
+  async getAll(userId: number, isEditor: boolean, page: number, limit: number) {
     const userRoadmaps = userId ? await this._repo.getFollowed(userId) : [];
     const createdRoadmaps = isEditor
       ? await this._repo.getByCreator(userId)
       : [];
-    const roadmaps = await this._repo.getAll();
+    const roadmaps = await this._repo.getAll(page, limit);
+    const count = await this._repo.count();
     const response = {
-      roadmaps,
+      official: {
+        roadmaps,
+        count,
+      },
       userRoadmaps,
       createdRoadmaps,
     };
@@ -92,6 +108,7 @@ export class RoadmapService {
   async editResources(roadmapId: number, resources: IResource[]) {}
 
   async updateVisibility(slug: string, userId: number): Promise<IRoadmap> {
+    Logger.Debug('slug: ' + slug, 'updateVisibility');
     const roadmap = await this._repo.getBySlug(slug);
     if (!roadmap) {
       throw new CustomError('Roadmap not found', 404);
@@ -103,5 +120,14 @@ export class RoadmapService {
       visibility: roadmap.visibility === 'public' ? 'hidden' : 'public',
     };
     return await this._repo.update(slug, putRoadmap);
+  }
+
+  async follow(slug: string, userId: number): Promise<void> {
+    const roadmap = await this._repo.getId(slug);
+    if (!roadmap) {
+      throw new CustomError('Roadmap not found', 404);
+    }
+
+    await this._followRepo.followToggle(roadmap, userId);
   }
 }
