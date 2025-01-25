@@ -127,7 +127,6 @@ export class RoadmapService {
   }
 
   async updateVisibility(slug: string, userId: number): Promise<IRoadmap> {
-    Logger.Debug('slug: ' + slug, 'updateVisibility');
     const roadmap = await this._repo.getBySlug(slug);
     if (!roadmap) {
       throw new CustomError('Roadmap not found', 404);

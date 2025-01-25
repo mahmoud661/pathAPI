@@ -75,7 +75,6 @@ export class RoadmapController {
   async getAll(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     const { user, isEditor } = req;
     const { page = 1, limit = 1000 } = req.query;
-    Logger.Debug(`user id: ${user?.id} request all roadmaps`);
 
     try {
       const roadmaps = await this.roadmapService.getAll(
