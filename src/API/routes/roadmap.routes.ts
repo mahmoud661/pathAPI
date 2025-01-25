@@ -65,6 +65,20 @@ router.post(
   controller.create.bind(controller),
 );
 
+router.post(
+  '/generated',
+  authenticate(),
+  allowedTokens(),
+  controller.createGenerated.bind(controller),
+);
+
+router.post(
+  '/generated-data/:slug',
+  authenticate(),
+  allowedTokens(),
+  controller.postRoadmapData.bind(controller),
+);
+
 /**
  * publish / hide a roadmap
  */

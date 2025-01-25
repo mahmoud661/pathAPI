@@ -66,6 +66,8 @@ export class RoadmapService {
         userId,
         roadmapId,
       );
+        Logger.Debug(achieved);
+      Logger.Debug(topics);
       topics.forEach((topic) => {
         topic.is_achieved = achieved.some((t) => t.id === topic.id);
       });

@@ -114,7 +114,7 @@ export class TopicRepo implements ITopicRepo {
     const query = `
     SELECT * 
     FROM achieved_topics_by_user
-    WHERE user = $1;
+    WHERE "user" = $1;
   `;
     try {
       const result = await pool.query(query, [user]);
@@ -127,7 +127,7 @@ export class TopicRepo implements ITopicRepo {
   async getAchievedInRoadmap(user: number, roadmap: number) {
     const query = `
     SELECT * FROM achieved_topics_by_user_and_roadmap
-    WHERE user = $1 AND roadmap = $2;
+    WHERE "user" = $1 AND roadmap = $2;
     `;
     try {
       const result = await pool.query(query, [user, roadmap]);
