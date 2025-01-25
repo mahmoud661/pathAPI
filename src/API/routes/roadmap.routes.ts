@@ -23,8 +23,31 @@ const resourceRepo: IResourceRepo = ResourceRepo.instance;
 const service = new RoadmapService(repo, topicRepo, edgeRepo, resourceRepo);
 const controller = new RoadmapController(service);
 
+// *******************************
+// *******      GET      *********
+// *******************************
+
+router.get('/check-slug/:slug', controller.slug.bind(controller));
+
+router.get('/', controller.getAll.bind(controller)); // get roadmap list
+
+router.get(
+  // Get roadmap by id
+  '/:slug',
+  authenticate(),
+  allowedTokens(),
+  editorPermission,
+  controller.getBySlug.bind(controller),
+);
+
+// *******************************
+// *******      POST      ********
+// *******************************
+
+/**
+ * Create a new roadmap
+ */
 router.post(
-  // Create a new roadmap
   '/',
   notEmpty('title', 'description', 'slug', 'icon'),
   authenticate(),
@@ -32,31 +55,9 @@ router.post(
   controller.create.bind(controller),
 );
 
-router.put(
-  // Update roadmap data
-  '/:id',
-  authenticate(),
-  allowedTokens(),
-  editorPermission,
-  controller.update.bind(controller),
-);
-
-router.patch(
-  // update roadmap topics and edges
-  '/:id',
-  authenticate(),
-  allowedTokens(),
-  editorPermission,
-  controller.patch.bind(controller),
-);
-
-router.get(
-  // Get roadmap by slug
-  '/:slug',
-  authenticate(false),
-  controller.getBySlug.bind(controller),
-);
-
+/**
+ * publish / hide a roadmap
+ */
 router.post(
   '/publish/:id',
   authenticate(),
@@ -65,10 +66,41 @@ router.post(
   controller.publish.bind(controller),
 );
 
-router.get('/check-slug/:slug', controller.slug.bind(controller));
+// *******************************
+// ********      PUT      ********
+// *******************************
 
-router.get('/', authenticate(false), controller.getAll.bind(controller));
+/**
+ * Update roadmap data
+ */
+router.put(
+  '/:slug',
+  authenticate(),
+  allowedTokens(),
+  editorPermission,
+  controller.update.bind(controller),
+);
 
-router.put('/resources/:id', controller.editResources.bind(controller));
+/**
+ * update roadmap data (Topics and Edges)
+ */
+router.put(
+  '/data/:slug',
+  authenticate(),
+  allowedTokens(),
+  editorPermission,
+  controller.patch.bind(controller),
+);
+
+/**
+ * update roadmap resources
+ */
+router.put(
+  '/resources/:id',
+  authenticate(),
+  allowedTokens(),
+  editorPermission,
+  controller.editResources.bind(controller),
+);
 
 export default router;
