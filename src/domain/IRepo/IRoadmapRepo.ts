@@ -8,6 +8,7 @@ export interface IRoadmapRepo {
   update(slug: string, roadmap: PutRoadmapDTO): Promise<IRoadmap>;
   delete(slug: string): Promise<void>;
   getBySlug(slug: string): Promise<IRoadmap>;
+  getById(id: number): Promise<IRoadmap>;
   getAll(...args: any): Promise<GetRoadmapDTO[]>;
   getFollowed(userId: number): Promise<IRoadmap[]>
   getByCreator(userId: number): Promise<IRoadmap[]>

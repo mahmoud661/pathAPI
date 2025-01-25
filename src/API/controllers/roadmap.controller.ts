@@ -81,7 +81,7 @@ export class RoadmapController {
       const roadmaps = await this.roadmapService.getAll(
         (user && user.id) || 0,
         isEditor!,
-        page as number,  // TODO: Safety check
+        page as number, // TODO: Safety check
         limit as number,
       );
       res.status(200).json({ success: true, data: roadmaps });
@@ -116,11 +116,24 @@ export class RoadmapController {
       next(error);
     }
   }
+
   async editResources(
     req: AuthenticatedRequest,
     res: Response,
     next: NextFunction,
-  ) {}
+  ) {
+    const { user } = req;
+    const { resources } = req.body;
+    try {
+      const updatedResources = await this.roadmapService.updateResources(
+        resources,
+        user.id,
+      );
+      res.status(200).json({ success: true, resources: updatedResources });
+    } catch (error) {
+      next(error);
+    }
+  }
 
   async publish(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     const slug = req.params.slug;
@@ -141,6 +154,16 @@ export class RoadmapController {
     try {
       const roadmap = await this.roadmapService.follow(slug, user.id);
       res.status(200).json({ success: true, roadmap });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getResources(req: Request, res: Response, next: NextFunction) {
+    const slug = req.params.slug;
+    try {
+      const resources = await this.roadmapService.getResources(slug);
+      res.status(200).json({ success: true, resources });
     } catch (error) {
       next(error);
     }

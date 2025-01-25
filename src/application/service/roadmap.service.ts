@@ -105,7 +105,18 @@ export class RoadmapService {
     await this._edgeRepo.create(edges, roadmapId);
   }
 
-  async editResources(roadmapId: number, resources: IResource[]) {}
+  async updateResources(resources: IResource[], user: number) {
+    const roadmapId = resources[0].roadmap;
+    const roadmap = await this._repo.getById(roadmapId);
+
+    if (roadmap.creator !== user || !roadmap.is_official) {
+      throw new CustomError('Not authorized', 403);
+    }
+
+    await this._resourceRepo.delete(roadmapId);
+    await this._resourceRepo.create(resources);
+    return this._resourceRepo.getByRoadmap(roadmapId);
+  }
 
   async updateVisibility(slug: string, userId: number): Promise<IRoadmap> {
     Logger.Debug('slug: ' + slug, 'updateVisibility');
@@ -129,5 +140,14 @@ export class RoadmapService {
     }
 
     await this._followRepo.followToggle(roadmap, userId);
+  }
+
+  async getResources(slug: string) {
+    const roadmap = await this._repo.getId(slug);
+    if (!roadmap) {
+      throw new CustomError('Roadmap not found', 404);
+    }
+    const resources = await this._resourceRepo.getByRoadmap(roadmap);
+    return resources ?? [];
   }
 }

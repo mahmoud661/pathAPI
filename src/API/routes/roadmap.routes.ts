@@ -40,13 +40,15 @@ const controller = new RoadmapController(service);
 
 router.get('/', authenticate(false), controller.getAll.bind(controller)); // get roadmap list
 
-router.get('/check-slug/:slug', controller.slug.bind(controller));
-
 router.get(
   '/:slug',
   authenticate(false),
   controller.getBySlug.bind(controller),
 );
+
+router.get('/check-slug/:slug', controller.slug.bind(controller));
+
+router.get('/resources/:slug', controller.getResources.bind(controller));
 
 // *******************************
 // *******      POST      ********
@@ -89,6 +91,17 @@ router.post(
 // *******************************
 
 /**
+ * update roadmap resources
+ */
+router.put(
+  '/resources/',
+  authenticate(),
+  allowedTokens(),
+  editorPermission,
+  controller.editResources.bind(controller),
+);
+
+/**
  * Update roadmap data
  */
 router.put(
@@ -108,17 +121,6 @@ router.put(
   allowedTokens(),
   editorPermission,
   controller.patch.bind(controller),
-);
-
-/**
- * update roadmap resources
- */
-router.put(
-  '/resources/:id',
-  authenticate(),
-  allowedTokens(),
-  editorPermission,
-  controller.editResources.bind(controller),
 );
 
 export default router;

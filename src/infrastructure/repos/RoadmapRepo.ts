@@ -100,6 +100,17 @@ export class RoadmapRepo implements IRoadmapRepo {
     }
   }
 
+  async getById(id: number): Promise<IRoadmap> {
+    const query =
+      'SELECT *  FROM roadmap WHERE id = $1';
+    const values = [id];
+    try {
+      return (await pool.query(query, values)).rows[0];
+    } catch (error: Error | any) {
+      throw new ServerError(error.message, 500, 'RoadmapRepo.getBySlug()');
+    }
+  }
+
   async getAll(page: number = 1, limit: number = 10): Promise<GetRoadmapDTO[]> {
     const offset = (page - 1) * limit;
     const query = `
