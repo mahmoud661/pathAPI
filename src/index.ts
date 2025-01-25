@@ -9,6 +9,7 @@ import errorMiddleware from './API/middlewares/error.middleware';
 import authRoute from './API/routes/auth.routes';
 import Logger from './infrastructure/logger/consoleLogger';
 import { config } from './config';
+import topicRoute from './API/routes/topic.routes';
 
 const app = express();
 let PORT = (config.port as number) || 4000;
@@ -21,6 +22,7 @@ app.use('/profile', profileRoute);
 app.use('/courses', coursesRoute);
 app.use('/jobs', jobsRoute);
 app.use('/roadmaps', roadmapRoute);
+app.use('/topics', topicRoute)
 
 app.get('/', (req, res) => {
   res.send('Hello World!');

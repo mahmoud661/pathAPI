@@ -89,12 +89,13 @@ export class TopicRepo implements ITopicRepo {
 
   async get(): Promise<ITopic[]> {
     const query = `
-        SELECT DISTINCT ON (title) 
-            title,
+        SELECT DISTINCT ON (label) 
+            label
         FROM 
             topic
+        WHERE topic.type = 'topic'
         ORDER BY 
-            title, created_at DESC;
+            label, created_at DESC;
       `;
     try {
       const result = await pool.query(query);

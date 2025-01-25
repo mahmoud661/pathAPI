@@ -33,3 +33,5 @@ router.post(
   allowedTokens(),
   controller.achieve.bind(controller),
 );
+
+export default router;
