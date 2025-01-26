@@ -42,8 +42,9 @@ export class TopicController {
   }
 
   async getSkills(req: AuthenticatedRequest, res: Response,  next: NextFunction) {
+    const user = req.user;
     try {
-      const skills = await this.topicService.getSkills();
+      const skills = await this.topicService.getSkills(user.id);
       res.status(200).send({ success: true, skills });
     } catch (error) {
       next(error);

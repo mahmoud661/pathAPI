@@ -16,7 +16,7 @@ export class TopicService {
     await this._repo.achieve(topic, user);
   }
 
-  async getSkills() {
-    return (await this._repo.getSkills()) ?? [];
+  async getSkills(user: number) {
+    return (await this._repo.getSkills(user)) ?? [];
   }
 }

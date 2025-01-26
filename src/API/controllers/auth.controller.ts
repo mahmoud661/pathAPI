@@ -27,7 +27,10 @@ class AuthController {
     res: Response,
     next: NextFunction,
   ): Promise<void> {
-    const postUser: PostUserDTO = req.body;
+    const postUser: PostUserDTO = {
+      ...req.body,
+      email: req.body.email.toLowerCase(),
+    };
     let user: GetUserDTO;
     try {
       user = await AuthController.userService.register(postUser);
@@ -64,7 +67,10 @@ class AuthController {
     const { email, password } = req.body;
     let user;
     try {
-      user = await AuthController.userService.login(email, password);
+      user = await AuthController.userService.login(
+        email?.toLowerCase(),
+        password,
+      );
     } catch (error: Error | any) {
       if (error instanceof CustomError) {
         next(error);

@@ -28,6 +28,7 @@ export class RoadmapService {
     is_editor: boolean,
   ) {
     await this.checkSlugAvailability(postRoadmap.slug);
+
     const newRoadmap: IRoadmap = {
       ...postRoadmap,
       id: 0,

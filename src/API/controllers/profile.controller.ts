@@ -8,12 +8,8 @@ export class ProfileController {
 
   async getProfile(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      if (!req.user?.id) {
-        throw new CustomError('Not authenticated', 401);
-      }
-
       const profile = await this.profileService.getProfile(req.user.id);
-      res.status(200).json({ success: true, data: profile });
+      res.status(200).json({ success: true, profile });
     } catch (error) {
       next(error);
     }

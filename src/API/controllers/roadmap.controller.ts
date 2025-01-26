@@ -4,6 +4,8 @@ import { CustomError } from '../../application/exception/customError';
 import AuthenticatedRequest from '../types/AuthenticatedRequest';
 import { PutRoadmapDTO } from '../../domain/DTOs/roadmap/PutRoadmapDTO';
 import { IPatchBody } from '../types/roadmapsRequests';
+import { PostRoadmapDTO } from '../../domain/DTOs/roadmap/PostRoadmapDTO';
+import { titleToSlug } from '../utils/roadmap';
 
 export class RoadmapController {
   constructor(private readonly roadmapService: RoadmapService) {}
@@ -29,7 +31,10 @@ export class RoadmapController {
     next: NextFunction,
   ) {
     const { user, isEditor, body } = req;
-    const postedRoadmap = { ...body };
+    const postedRoadmap: PostRoadmapDTO = {
+      ...body,
+      slug: titleToSlug(body.title),
+    };
 
     try {
       const roadmap = await this.roadmapService.create(
@@ -127,7 +132,11 @@ export class RoadmapController {
     }
   }
 
-  async putRoadmapData(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  async putRoadmapData(
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) {
     const id = Number(req.body.id);
     if (isNaN(id))
       res

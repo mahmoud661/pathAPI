@@ -164,7 +164,10 @@ export class TopicRepo implements ITopicRepo {
     WHERE "user" = $1 AND skill_name IS NOT NULL AND skill_name != '' GROUP BY skill_name;
     `;
     try {
+      Logger.Debug(`user: ${user}`)
       const result = await pool.query(query, [user]);
+      Logger.Debug('result ');
+      Logger.Debug(result);
       return result.rows;
     } catch (error: Error | any) {
       throw new ServerError(error.message, 500, 'TopicRepo.getSkills()');

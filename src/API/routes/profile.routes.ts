@@ -8,20 +8,18 @@ const router = Router();
 
 const userRepo = UserRepo.instance;
 const profileService = new ProfileService(userRepo);
-const profileController = new ProfileController(profileService);
+const controller = new ProfileController(profileService);
 
-// Get user profile
 router.get(
   '/',
   authenticate(),
-  profileController.getProfile
+  controller.getProfile.bind(controller)
 );
 
-// Update user profile
 router.put(
   '/',
   authenticate(),
-  profileController.updateProfile.bind(profileController)
+  controller.updateProfile.bind(controller)
 );
 
 export default router;

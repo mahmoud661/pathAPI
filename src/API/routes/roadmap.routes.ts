@@ -67,6 +67,7 @@ router.post(
 
 router.post(
   '/generated',
+  notEmpty('title', 'description', 'icon'),
   authenticate(),
   allowedTokens(),
   controller.createGenerated.bind(controller),
@@ -76,7 +77,7 @@ router.post(
   '/generated-data/:slug',
   authenticate(),
   allowedTokens(),
-  controller.postRoadmapData.bind(controller),
+  controller.putRoadmapData.bind(controller),
 );
 
 /**
