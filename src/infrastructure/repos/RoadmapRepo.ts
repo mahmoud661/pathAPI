@@ -116,16 +116,24 @@ export class RoadmapRepo implements IRoadmapRepo {
     keyword: string = '',
   ): Promise<GetRoadmapDTO[]> {
     const offset = (page - 1) * limit;
+
+    // Base query
     let query = `
-      SELECT id, title, description, slug, is_official, icon 
-      FROM roadmap 
-      WHERE visibility = 'public'`;
-    if (keyword) {
-      query += ` AND title ILIKE '%$3%' OR description ILIKE '%$3%'`;
-    }
-    query += `ORDER BY created_at ASC LIMIT $1 OFFSET $2`;
+    SELECT id, title, description, slug, is_official, icon 
+    FROM roadmap 
+    WHERE visibility = 'public'
+  `;
+
     const values: any[] = [limit, offset];
-    keyword && values.push(keyword);
+
+    // Add keyword filter dynamically if provided
+    if (keyword) {
+      query += ` AND (title ILIKE $3 OR description ILIKE $3)`;
+      values.push(`%${keyword}%`); // Properly parameterize the keyword
+    }
+
+    // Add order and limit/offset
+    query += ` ORDER BY created_at ASC LIMIT $1 OFFSET $2`;
 
     try {
       const result = await pool.query(query, values);

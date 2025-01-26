@@ -117,7 +117,7 @@ export class RoadmapController {
 
   async getAll(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     const { user, isEditor } = req;
-    const { page = 1, limit = 1000, search = '' } = req.query;
+    const { page = 1, limit = 1000, search = ' ' } = req.query;
     if (isNaN(page as number) || isNaN(limit as number)) {
       next(new CustomError('page and limit must be number', 400));
       return;
