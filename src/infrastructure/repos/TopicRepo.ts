@@ -128,12 +128,13 @@ export class TopicRepo implements ITopicRepo {
 
   async getAchieved(user: number): Promise<ITopic[]> {
     const query = `
-    SELECT * 
-    FROM achieved_topics_by_user
+    SELECT * FROM achieved_topics_by_user
     WHERE "user" = $1;
   `;
     try {
+      Logger.Debug(`User: ${user}`);
       const result = await pool.query(query, [user]);
+      Logger.Debug(result, 'TopicRepo.getAchieved()');
       return result.rows;
     } catch (error: Error | any) {
       throw new ServerError(error.message, 500, 'TopicRepo.getAchieved()');
@@ -154,6 +155,19 @@ export class TopicRepo implements ITopicRepo {
         500,
         'TopicRepo.getAchievedInRoadmap()',
       );
+    }
+  }
+
+  async getSkills(user: number): Promise<ITopic[]> {
+    const query = `
+    SELECT skill_name FROM achieved_topics_by_user
+    WHERE "user" = $1 AND skill_name IS NOT NULL AND skill_name != '' GROUP BY skill_name;
+    `;
+    try {
+      const result = await pool.query(query, [user]);
+      return result.rows;
+    } catch (error: Error | any) {
+      throw new ServerError(error.message, 500, 'TopicRepo.getSkills()');
     }
   }
 }

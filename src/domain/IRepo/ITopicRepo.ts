@@ -9,4 +9,5 @@ export interface ITopicRepo {
   get(): Promise<ITopic[]>;
   getAchieved(user: number): Promise<ITopic[]>;
   getAchievedInRoadmap(user: number, roadmapId: number): Promise<ITopic[]>;
+  getSkills(user: number): Promise<ITopic[]>;
 }

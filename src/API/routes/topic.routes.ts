@@ -20,7 +20,19 @@ router.get('/', controller.get.bind(controller));
 /**
  * Get achieved
  */
-router.get('/achieved', authenticate(), allowedTokens(), controller.getAchieved.bind(controller));
+router.get(
+  '/achieved',
+  authenticate(),
+  allowedTokens(),
+  controller.getAchieved.bind(controller),
+);
+
+router.get(
+  '/skills/:id',
+  authenticate(),
+  allowedTokens(),
+  controller.getSkills.bind(controller),
+);
 
 /**
  * Achieve a topic
