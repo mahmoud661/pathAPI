@@ -13,7 +13,7 @@ function doNotAllow(...keys: string[]) {
         res
           .status(423)
           .json({
-            message: `${key} is restricted, you cannot post, update it.`,
+            message: `${key} is restricted, you cannot post or update it.`,
           });
         return;
       }
