@@ -117,7 +117,6 @@ export class RoadmapRepo implements IRoadmapRepo {
   ): Promise<GetRoadmapDTO[]> {
     const offset = (page - 1) * limit;
 
-    // Base query
     let query = `
     SELECT id, title, description, slug, is_official, icon 
     FROM roadmap 
@@ -126,13 +125,11 @@ export class RoadmapRepo implements IRoadmapRepo {
 
     const values: any[] = [limit, offset];
 
-    // Add keyword filter dynamically if provided
     if (keyword) {
       query += ` AND (title ILIKE $3 OR description ILIKE $3)`;
       values.push(`%${keyword}%`); // Properly parameterize the keyword
     }
 
-    // Add order and limit/offset
     query += ` ORDER BY created_at ASC LIMIT $1 OFFSET $2`;
 
     try {
@@ -153,24 +150,46 @@ export class RoadmapRepo implements IRoadmapRepo {
     }
   }
 
-  async getFollowed(userId: number): Promise<IRoadmap[]> {
-    const query = `
+  async getFollowed(userId: number, keyword: string = ''): Promise<IRoadmap[]> {
+    let query = `
       SELECT r.id, r.title, r.description, r.slug, r.icon, r.visibility, r.created_at, r.updated_at
       FROM public.roadmap r
       JOIN public.follow f ON f.roadmap = r.id
-      WHERE f.user_id=$1 AND visibility!='hidden';`;
+      WHERE f.user_id = $1 AND visibility != 'hidden'
+    `;
+
+    const values: any[] = [userId];
+
+    if (keyword) {
+      query += ` AND (r.title ILIKE $2 OR r.description ILIKE $2)`;
+      values.push(`%${keyword}%`); // Parameterize the keyword
+    }
+
     try {
-      const result = await pool.query(query, [userId]);
+      const result = await pool.query(query, values);
       return result.rows;
     } catch (error: Error | any) {
       throw new CustomError(error.message, 500, 'RoadmapRepo.getFollowed()');
     }
   }
 
-  async getByCreator(userId: number): Promise<IRoadmap[]> {
-    const query = `SELECT * FROM roadmap WHERE creator = ${userId} ORDER BY created_at DESC`;
+  async getByCreator(
+    userId: number,
+    keyword: string = '',
+  ): Promise<IRoadmap[]> {
+    let query = `SELECT * FROM roadmap WHERE creator = $1`;
+
+    const values: any[] = [userId];
+
+    if (keyword) {
+      query += ` AND (title ILIKE $2 OR description ILIKE $2)`;
+      values.push(`%${keyword}%`); // Parameterize the keyword
+    }
+
+    query += ` ORDER BY created_at DESC`;
+
     try {
-      const result = await pool.query(query);
+      const result = await pool.query(query, values);
       return result.rows;
     } catch (error: Error | any) {
       throw new CustomError(error.message, 500, 'RoadmapRepo.getByCreator()');

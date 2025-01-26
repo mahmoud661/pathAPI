@@ -88,9 +88,9 @@ export class RoadmapService {
     limit: number,
     keyword: string,
   ) {
-    const userRoadmaps = userId ? await this._repo.getFollowed(userId) : [];
+    const userRoadmaps = userId ? await this._repo.getFollowed(userId, keyword) : [];
     const createdRoadmaps = isEditor
-      ? await this._repo.getByCreator(userId)
+      ? await this._repo.getByCreator(userId, keyword)
       : [];
     const roadmaps = await this._repo.getAll(page, limit, keyword);
     const count = await this._repo.count();
