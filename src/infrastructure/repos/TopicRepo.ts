@@ -76,8 +76,15 @@ export class TopicRepo implements ITopicRepo {
   }
 
   async achieve(topic: number, user: number): Promise<void> {
+    const checkQuery =
+      'SELECT * FROM achieved_topic WHERE "user" = $1 AND topic = $2';
     const query = 'INSERT INTO achieved_topic VALUES ($1, $2)';
     try {
+      if ((await pool.query(checkQuery, [user, topic])).rowCount) {
+        // Check if it's achieved
+        return this.unAchieve(topic, user);
+      }
+
       await pool.query(query, [user, topic]);
     } catch (error: Error | any) {
       if (error.code === '23505') {
@@ -85,6 +92,15 @@ export class TopicRepo implements ITopicRepo {
       } else {
         throw new ServerError(error.message, 500, 'TopicRepo.achieve()');
       }
+    }
+  }
+
+  private async unAchieve(topic: number, user: number): Promise<void> {
+    const query = 'DELETE FROM achieved_topic WHERE "user" = $1 AND topic = $2';
+    try {
+      await pool.query(query, [user, topic]);
+    } catch (error: Error | any) {
+      throw new ServerError(error.message, 500, 'TopicRepo.unAchieve()');
     }
   }
 
