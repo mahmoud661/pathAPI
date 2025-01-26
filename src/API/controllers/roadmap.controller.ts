@@ -40,7 +40,7 @@ export class RoadmapController {
       const roadmap = await this.roadmapService.create(
         postedRoadmap,
         user.id,
-        isEditor ?? false,
+        isEditor ?? false, //TODO: always send false to make it not-official roadmap
       );
       res.status(201).json({ success: true, roadmap });
     } catch (error) {

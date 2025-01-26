@@ -8,7 +8,6 @@ export class TopicService {
   }
 
   async getAchieved(user: number) {
-    Logger.Debug(user);
     return (await this._repo.getAchieved(user)) ?? [];
   }
 

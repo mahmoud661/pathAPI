@@ -20,8 +20,6 @@ export class TopicController {
     res: Response,
     next: NextFunction,
   ) {
-    Logger.Debug('req' + req);
-    Logger.Debug('user: ' + req.user);
     try {
       const topics = await this.topicService.getAchieved(req.user.id);
       res.status(200).send({ success: true, topics });
