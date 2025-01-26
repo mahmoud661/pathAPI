@@ -7,7 +7,12 @@ const pool = new Pool({
   ssl: {
     rejectUnauthorized: false,
   },
+  max: 100, // Maximum number of connections in the pool
+  min: 20,  // Minimum number of idle connections
+  idleTimeoutMillis: 30000, // Close idle connections after 30 seconds
+  connectionTimeoutMillis: 10000, // Wait up to 2 seconds for a connection
 });
+
 
 
 pool.on('connect', () => {
