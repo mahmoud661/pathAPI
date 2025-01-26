@@ -117,14 +117,18 @@ export class RoadmapController {
 
   async getAll(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     const { user, isEditor } = req;
-    const { page = 1, limit = 1000 } = req.query;
-
+    const { page = 1, limit = 1000, search = '' } = req.query;
+    if (isNaN(page as number) || isNaN(limit as number)) {
+      next(new CustomError('page and limit must be number', 400));
+      return;
+    }
     try {
       const roadmaps = await this.roadmapService.getAll(
         (user && user.id) || 0,
         isEditor!,
         page as number, // TODO: Safety check
         limit as number,
+        search as string,
       );
       res.status(200).json({ success: true, data: roadmaps });
     } catch (error) {

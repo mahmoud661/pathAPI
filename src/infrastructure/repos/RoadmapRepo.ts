@@ -1,3 +1,4 @@
+import { off } from 'process';
 import { CustomError } from '../../application/exception/customError';
 import { ServerError } from '../../application/exception/serverError';
 import { GetRoadmapDTO } from '../../domain/DTOs/roadmap/GetRoadmapDTO';
@@ -90,8 +91,7 @@ export class RoadmapRepo implements IRoadmapRepo {
   }
 
   async getBySlug(slug: string): Promise<IRoadmap> {
-    const query =
-      'SELECT *  FROM roadmap WHERE slug = $1';
+    const query = 'SELECT *  FROM roadmap WHERE slug = $1';
     const values = [slug.toLowerCase()];
     try {
       return (await pool.query(query, values)).rows[0];
@@ -101,8 +101,7 @@ export class RoadmapRepo implements IRoadmapRepo {
   }
 
   async getById(id: number): Promise<IRoadmap> {
-    const query =
-      'SELECT *  FROM roadmap WHERE id = $1';
+    const query = 'SELECT *  FROM roadmap WHERE id = $1';
     const values = [id];
     try {
       return (await pool.query(query, values)).rows[0];
@@ -111,17 +110,25 @@ export class RoadmapRepo implements IRoadmapRepo {
     }
   }
 
-  async getAll(page: number = 1, limit: number = 10): Promise<GetRoadmapDTO[]> {
+  async getAll(
+    page: number = 1,
+    limit: number = 10,
+    keyword: string = '',
+  ): Promise<GetRoadmapDTO[]> {
     const offset = (page - 1) * limit;
-    const query = `
+    let query = `
       SELECT id, title, description, slug, is_official, icon 
       FROM roadmap 
-      WHERE visibility = 'public'
-      ORDER BY created_at DESC 
-      LIMIT $1 OFFSET $2
-      `;
+      WHERE visibility = 'public'`;
+    if (keyword) {
+      query += ` AND title ILIKE '%$3%' OR description ILIKE '%$3%'`;
+    }
+    query += `ORDER BY created_at ASC LIMIT $1 OFFSET $2`;
+    const values: any[] = [limit, offset];
+    keyword && values.push(keyword);
+
     try {
-      const result = await pool.query(query, [limit, offset]);
+      const result = await pool.query(query, values);
       return result.rows;
     } catch (error: Error | any) {
       throw new CustomError(error.message, 500, 'RoadmapRepo.getAll()');

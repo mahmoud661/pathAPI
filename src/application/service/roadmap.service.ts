@@ -54,7 +54,7 @@ export class RoadmapService {
     await this._repo.delete(slug);
   }
 
-  async getBySlug(slug: string, userId: number) {
+  async getBySlug(slug: string, userId: number, keyword?: string) {
     const roadmap = await this._repo.getBySlug(slug);
     if (!roadmap) throw new CustomError('Roadmap not found', 404);
     const roadmapId = roadmap.id;
@@ -81,12 +81,18 @@ export class RoadmapService {
     };
   }
 
-  async getAll(userId: number, isEditor: boolean, page: number, limit: number) {
+  async getAll(
+    userId: number,
+    isEditor: boolean,
+    page: number,
+    limit: number,
+    keyword: string,
+  ) {
     const userRoadmaps = userId ? await this._repo.getFollowed(userId) : [];
     const createdRoadmaps = isEditor
       ? await this._repo.getByCreator(userId)
       : [];
-    const roadmaps = await this._repo.getAll(page, limit);
+    const roadmaps = await this._repo.getAll(page, limit, keyword);
     const count = await this._repo.count();
     const response = {
       official: {
