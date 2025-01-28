@@ -1,0 +1,1 @@
+{"version":3,"file":"authenticationError.js","sourceRoot":"","sources":["../../../src/application/exception/authenticationError.ts"],"names":[],"mappings":";AAAA,MAAM,mBAAoB,SAAQ,KAAK;IACrC,YAAY,OAAe;QACzB,KAAK,CAAC,OAAO,CAAC,CAAC;QACf,IAAI,CAAC,IAAI,GAAG,qBAAqB,CAAC;IACpC,CAAC;CACF"}

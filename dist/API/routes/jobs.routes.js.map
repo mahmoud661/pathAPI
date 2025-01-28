@@ -1,0 +1,1 @@
+{"version":3,"file":"jobs.routes.js","sourceRoot":"","sources":["../../../src/API/routes/jobs.routes.ts"],"names":[],"mappings":";;;;;AAAA,sDAA8B;AAC9B,oEAAgE;AAChE,iGAAwE;AAExE,MAAM,MAAM,GAAG,iBAAO,CAAC,MAAM,EAAE,CAAC;AAChC,MAAM,cAAc,GAAG,IAAI,gCAAc,CAAC,sBAAW,CAAC,QAAQ,CAAC,CAAC;AAEhE,MAAM,CAAC,GAAG,CAAC,GAAG,EAAE,cAAc,CAAC,UAAU,CAAC,CAAC;AAE3C,kBAAe,MAAM,CAAC"}
