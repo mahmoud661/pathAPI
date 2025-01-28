@@ -7,7 +7,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 export const config = {
-  port: process.env.PORT || 3000,
+  port: process.env.PORT || 3001,
   dbHost: process.env.DB_HOST,
   jwtSecret: process.env.JWT_SECRET as string,
   postmarkToken: process.env.POSTMARK_TOKEN as string,
